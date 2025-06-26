@@ -8,6 +8,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthWrapper from "./components/AuthWrapper";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Reservations from "./pages/Reservations";
+import Account from "./pages/Account";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +23,8 @@ const App = () => (
         <AuthWrapper>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/reservations" element={<Reservations />} />
+            <Route path="/account" element={<Account />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

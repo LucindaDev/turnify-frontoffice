@@ -15,8 +15,8 @@ export type Database = {
           closes_at: string | null
           company_id: number
           created_at: string
-          employees_count: number
           id: number
+          images: string[] | null
           location: string | null
           name: string
           opens_at: string | null
@@ -29,8 +29,8 @@ export type Database = {
           closes_at?: string | null
           company_id: number
           created_at?: string
-          employees_count?: number
           id?: number
+          images?: string[] | null
           location?: string | null
           name: string
           opens_at?: string | null
@@ -43,8 +43,8 @@ export type Database = {
           closes_at?: string | null
           company_id?: number
           created_at?: string
-          employees_count?: number
           id?: number
+          images?: string[] | null
           location?: string | null
           name?: string
           opens_at?: string | null
