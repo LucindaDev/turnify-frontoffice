@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import BottomNavigation from '@/components/BottomNavigation';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { User } from '@supabase/supabase-js';
 import { 
-  User, 
+  User as UserIcon, 
   Settings, 
   Heart, 
   CreditCard, 
@@ -20,6 +21,18 @@ import {
 
 const Account = () => {
   const { toast } = useToast();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    };
+
+    getUser();
+  }, []);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -38,15 +51,33 @@ const Account = () => {
     }
   };
 
+  const handleComingSoon = (feature: string) => {
+    toast({
+      title: "Próximamente",
+      description: `La función "${feature}" estará disponible pronto.`,
+    });
+  };
+
   const menuItems = [
-    { icon: User, label: 'Editar perfil', action: () => {} },
-    { icon: Heart, label: 'Restaurantes favoritos', action: () => {} },
-    { icon: CreditCard, label: 'Métodos de pago', action: () => {} },
-    { icon: Bell, label: 'Notificaciones', action: () => {} },
-    { icon: Gift, label: 'Promociones', action: () => {} },
-    { icon: Settings, label: 'Configuración', action: () => {} },
-    { icon: HelpCircle, label: 'Ayuda y soporte', action: () => {} },
+    { icon: UserIcon, label: 'Editar perfil', action: () => handleComingSoon('Editar perfil'), disabled: true },
+    { icon: Heart, label: 'Restaurantes favoritos', action: () => handleComingSoon('Restaurantes favoritos'), disabled: true },
+    { icon: CreditCard, label: 'Métodos de pago', action: () => handleComingSoon('Métodos de pago'), disabled: true },
+    { icon: Bell, label: 'Notificaciones', action: () => handleComingSoon('Notificaciones'), disabled: true },
+    { icon: Gift, label: 'Promociones', action: () => handleComingSoon('Promociones'), disabled: true },
+    { icon: Settings, label: 'Configuración', action: () => handleComingSoon('Configuración'), disabled: true },
+    { icon: HelpCircle, label: 'Ayuda y soporte', action: () => handleComingSoon('Ayuda y soporte'), disabled: true },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
+  const userEmail = user?.email || 'email@ejemplo.com';
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -54,14 +85,22 @@ const Account = () => {
       <div className="bg-gradient-to-br from-blue-600 to-indigo-600 text-white p-6">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-            <User className="w-8 h-8" />
+            {user?.user_metadata?.avatar_url ? (
+              <img 
+                src={user.user_metadata.avatar_url} 
+                alt="Avatar" 
+                className="w-full h-full rounded-full object-cover"
+              />
+            ) : (
+              <UserIcon className="w-8 h-8" />
+            )}
           </div>
           <div>
-            <h1 className="text-xl font-bold">Juan Pérez</h1>
-            <p className="text-blue-100">juan.perez@email.com</p>
+            <h1 className="text-xl font-bold">{userName}</h1>
+            <p className="text-blue-100">{userEmail}</p>
             <div className="flex items-center gap-1 mt-1">
               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm">4.8 • Cliente VIP</span>
+              <span className="text-sm">Usuario nuevo</span>
             </div>
           </div>
         </div>
@@ -72,21 +111,21 @@ const Account = () => {
         <div className="grid grid-cols-3 gap-4 mb-6">
           <Card className="text-center">
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-blue-600">24</div>
+              <div className="text-2xl font-bold text-blue-600">0</div>
               <div className="text-xs text-gray-600">Reservas</div>
             </CardContent>
           </Card>
           
           <Card className="text-center">
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-green-600">12</div>
+              <div className="text-2xl font-bold text-green-600">0</div>
               <div className="text-xs text-gray-600">Favoritos</div>
             </CardContent>
           </Card>
           
           <Card className="text-center">
             <CardContent className="p-4">
-              <div className="text-2xl font-bold text-purple-600">8</div>
+              <div className="text-2xl font-bold text-purple-600">0</div>
               <div className="text-xs text-gray-600">Reseñas</div>
             </CardContent>
           </Card>
@@ -102,13 +141,18 @@ const Account = () => {
               <button
                 key={index}
                 onClick={item.action}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+                disabled={item.disabled}
+                className={`w-full flex items-center justify-between p-4 transition-colors border-b border-gray-100 last:border-b-0 ${
+                  item.disabled 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'hover:bg-gray-50 text-gray-900'
+                }`}
               >
                 <div className="flex items-center gap-3">
-                  <item.icon className="w-5 h-5 text-gray-600" />
-                  <span className="text-gray-900">{item.label}</span>
+                  <item.icon className={`w-5 h-5 ${item.disabled ? 'text-gray-400' : 'text-gray-600'}`} />
+                  <span>{item.label}</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
+                <ChevronRight className={`w-4 h-4 ${item.disabled ? 'text-gray-400' : 'text-gray-400'}`} />
               </button>
             ))}
           </CardContent>
@@ -122,7 +166,11 @@ const Account = () => {
               <p className="text-sm text-gray-600 mb-4">
                 Contáctanos para resolver cualquier duda sobre tus reservaciones
               </p>
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => handleComingSoon('Contactar soporte')}
+              >
                 Contactar soporte
               </Button>
             </div>
