@@ -124,7 +124,7 @@ const Dashboard = () => {
           </Button>
         </div>
         
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {popularRestaurants.map((restaurant) => (
             <RestaurantCard key={restaurant.id} {...restaurant} />
           ))}
@@ -140,7 +140,7 @@ const Dashboard = () => {
           </h2>
         </div>
         
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           <Card className="cursor-pointer hover:shadow-md transition-shadow">
             <div className="relative">
               <img 

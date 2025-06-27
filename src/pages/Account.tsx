@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -108,7 +107,7 @@ const Account = () => {
 
       {/* Estadísticas */}
       <div className="p-4">
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-4 mb-6">
           <Card className="text-center">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-blue-600">0</div>

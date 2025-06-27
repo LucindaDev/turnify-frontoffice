@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -66,71 +65,73 @@ const Reservations = () => {
       </div>
 
       {/* Reservaciones */}
-      <div className="p-4 space-y-4">
-        {reservations.map((reservation) => (
-          <Card key={reservation.id} className="overflow-hidden">
-            <div className="relative">
-              <img 
-                src={reservation.image} 
-                alt={reservation.restaurant}
-                className="w-full h-32 object-cover"
-              />
-              <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(reservation.status)}`}>
-                {getStatusText(reservation.status)}
-              </div>
-            </div>
-            
-            <CardContent className="p-4">
-              <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                {reservation.restaurant}
-              </h3>
-              
-              <div className="space-y-2 mb-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Calendar className="w-4 h-4" />
-                  <span>{new Date(reservation.date).toLocaleDateString('es-ES', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}</span>
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Clock className="w-4 h-4" />
-                  <span>{reservation.time}</span>
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Users className="w-4 h-4" />
-                  <span>{reservation.guests} personas</span>
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <MapPin className="w-4 h-4" />
-                  <span>{reservation.address}</span>
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Phone className="w-4 h-4" />
-                  <span>{reservation.phone}</span>
+      <div className="p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {reservations.map((reservation) => (
+            <Card key={reservation.id} className="overflow-hidden">
+              <div className="relative">
+                <img 
+                  src={reservation.image} 
+                  alt={reservation.restaurant}
+                  className="w-full h-32 object-cover"
+                />
+                <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(reservation.status)}`}>
+                  {getStatusText(reservation.status)}
                 </div>
               </div>
               
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  Modificar
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1 text-red-600 hover:text-red-700">
-                  Cancelar
-                </Button>
-                <Button size="sm" className="flex-1">
-                  Ver detalles
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-lg text-gray-900 mb-2">
+                  {reservation.restaurant}
+                </h3>
+                
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Calendar className="w-4 h-4" />
+                    <span>{new Date(reservation.date).toLocaleDateString('es-ES', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Clock className="w-4 h-4" />
+                    <span>{reservation.time}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Users className="w-4 h-4" />
+                    <span>{reservation.guests} personas</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <MapPin className="w-4 h-4" />
+                    <span>{reservation.address}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Phone className="w-4 h-4" />
+                    <span>{reservation.phone}</span>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1">
+                    Modificar
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1 text-red-600 hover:text-red-700">
+                    Cancelar
+                  </Button>
+                  <Button size="sm" className="flex-1">
+                    Ver detalles
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {/* Botón para nueva reserva */}
