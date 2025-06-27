@@ -1,0 +1,300 @@
+
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { useBranches } from '@/hooks/useBranches';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, Clock, MapPin, Users, Star, CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const RestaurantDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { data: branches, isLoading } = useBranches();
+  
+  const [activeTab, setActiveTab] = useState<'info' | 'reservation'>('info');
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedTime, setSelectedTime] = useState('');
+  const [guestCount, setGuestCount] = useState('1');
+
+  const branch = branches?.find(b => b.id.toString() === id);
+
+  const handleReservation = () => {
+    if (!selectedDate || !selectedTime || !guestCount) {
+      toast({
+        variant: "destructive",
+        title: "Campos incompletos",
+        description: "Por favor completa todos los campos para continuar.",
+      });
+      return;
+    }
+
+    toast({
+      title: "Reservación confirmada",
+      description: `Tu reservación para ${guestCount} ${parseInt(guestCount) === 1 ? 'persona' : 'personas'} ha sido confirmada.`,
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando información del restaurante...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!branch) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Restaurante no encontrado</p>
+          <Button onClick={() => navigate('/')}>Volver al inicio</Button>
+        </div>
+      </div>
+    );
+  }
+
+  const getStatusInfo = () => {
+    const occupancyRate = branch.total_tables > 0 ? (branch.active_tables / branch.total_tables) * 100 : 0;
+    
+    if (occupancyRate < 30) return { text: 'Tranquilo', color: 'text-green-600', time: '2 min' };
+    if (occupancyRate < 60) return { text: 'Flujo Normal', color: 'text-blue-600', time: '5-10 min' };
+    if (occupancyRate < 80) return { text: 'Casi lleno', color: 'text-yellow-600', time: '15-20 min' };
+    if (occupancyRate < 95) return { text: 'Lleno', color: 'text-orange-600', time: '25-30 min' };
+    return { text: 'Saturado', color: 'text-red-600', time: '30+ min' };
+  };
+
+  const statusInfo = getStatusInfo();
+  const mainImage = branch.images && branch.images.length > 0 
+    ? branch.images[0] 
+    : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop';
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Image */}
+      <div className="relative">
+        <img 
+          src={mainImage}
+          alt={branch.name}
+          className="w-full h-64 object-cover"
+        />
+        <Button
+          variant="secondary"
+          size="icon"
+          className="absolute top-4 left-4 bg-white/90 hover:bg-white"
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+      </div>
+
+      {/* Restaurant Info */}
+      <div className="p-4 bg-white">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="w-12 h-12 bg-gray-900 rounded-lg flex-shrink-0"></div>
+          <div className="flex-1">
+            <h1 className="text-xl font-bold text-gray-900">{branch.name}</h1>
+            <div className="flex items-center gap-4 mt-2 text-sm">
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-600">Tiempo</span>
+                <span className={statusInfo.color}>{statusInfo.time}</span>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <span className="text-gray-600">Estado</span>
+                <span className={statusInfo.color}>{statusInfo.text}</span>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                <span className="text-gray-600">Rating</span>
+                <span className="font-medium">4.8</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-4">
+          <Button
+            variant={activeTab === 'info' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('info')}
+            className="flex-1"
+          >
+            Información
+          </Button>
+          <Button
+            variant={activeTab === 'reservation' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('reservation')}
+            className="flex-1"
+          >
+            Reservación
+          </Button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-4">
+        {activeTab === 'info' ? (
+          <div className="space-y-4">
+            {/* Horario */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <h3 className="font-medium text-gray-900">Horario</h3>
+                    <p className="text-sm text-gray-600">
+                      {branch.opens_at || '07:30'} a. m. - {branch.closes_at || '05:30'} p. m.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Ubicación */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <h3 className="font-medium text-gray-900">Ubicación</h3>
+                    <p className="text-sm text-gray-600">{branch.location || 'Ubicación no disponible'}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Capacidad */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <Users className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <h3 className="font-medium text-gray-900">Capacidad</h3>
+                    <p className="text-sm text-gray-600">{branch.total_tables} lugares totales</p>
+                  </div>
+                </div>
+
+                {/* Tables Status */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                    <p className="font-medium text-green-800">MESA 1</p>
+                    <p className="text-sm text-green-600">4 lugares</p>
+                    <p className="text-xs text-green-600 font-medium">Disponible</p>
+                  </div>
+                  
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                    <p className="font-medium text-green-800">MESA 2</p>
+                    <p className="text-sm text-green-600">8 lugares</p>
+                    <p className="text-xs text-green-600 font-medium">Disponible</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-4">
+                <CalendarIcon className="w-5 h-5 text-orange-600" />
+                <h3 className="font-medium text-gray-900">Hacer Reservación</h3>
+              </div>
+
+              <div className="space-y-4">
+                {/* Fecha */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "dd/MM/yyyy", { locale: es }) : "dd/mm/aaaa"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Hora */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Hora</label>
+                  <Select value={selectedTime} onValueChange={setSelectedTime}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar hora" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="12:00">12:00 PM</SelectItem>
+                      <SelectItem value="12:30">12:30 PM</SelectItem>
+                      <SelectItem value="13:00">1:00 PM</SelectItem>
+                      <SelectItem value="13:30">1:30 PM</SelectItem>
+                      <SelectItem value="14:00">2:00 PM</SelectItem>
+                      <SelectItem value="14:30">2:30 PM</SelectItem>
+                      <SelectItem value="19:00">7:00 PM</SelectItem>
+                      <SelectItem value="19:30">7:30 PM</SelectItem>
+                      <SelectItem value="20:00">8:00 PM</SelectItem>
+                      <SelectItem value="20:30">8:30 PM</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Número de personas */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Número de personas</label>
+                  <Select value={guestCount} onValueChange={setGuestCount}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num} {num === 1 ? 'persona' : 'personas'}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button onClick={handleReservation} className="w-full bg-orange-500 hover:bg-orange-600">
+                  Confirmar Reservación
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default RestaurantDetail;

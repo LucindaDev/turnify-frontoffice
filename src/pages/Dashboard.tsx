@@ -6,41 +6,10 @@ import RestaurantCard from '@/components/RestaurantCard';
 import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Utensils, Clock, MapPin } from 'lucide-react';
+import { useBranches } from '@/hooks/useBranches';
 
 const Dashboard = () => {
-  // Mock data para restaurantes populares
-  const popularRestaurants = [
-    {
-      id: '1',
-      name: 'La Docena Oyster Bar',
-      image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&h=300&fit=crop',
-      rating: 4.8,
-      cuisine: 'Mariscos • Mexicana',
-      waitTime: '15-20 min',
-      distance: '0.8 km',
-      availability: 'Disponible'
-    },
-    {
-      id: '2',
-      name: 'Rosetta',
-      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop',
-      rating: 4.9,
-      cuisine: 'Italiana • Fine Dining',
-      waitTime: '25-30 min',
-      distance: '1.2 km',
-      availability: 'Pocas mesas'
-    },
-    {
-      id: '3',
-      name: 'Contramar',
-      image: 'https://images.unsplash.com/photo-1552566090-a855ac7e7e5c?w=400&h=300&fit=crop',
-      rating: 4.7,
-      cuisine: 'Mariscos • Casual',
-      waitTime: '30-35 min',
-      distance: '2.1 km',
-      availability: 'Disponible'
-    }
-  ];
+  const { data: branches, isLoading, error } = useBranches();
 
   const categories = [
     { name: 'Italiana', icon: '🍝', color: 'bg-red-100' },
@@ -48,6 +17,33 @@ const Dashboard = () => {
     { name: 'Mexicana', icon: '🌮', color: 'bg-green-100' },
     { name: 'Mariscos', icon: '🦐', color: 'bg-blue-100' },
   ];
+
+  const transformBranchToRestaurant = (branch: any) => {
+    const occupancyRate = branch.total_tables > 0 ? (branch.active_tables / branch.total_tables) * 100 : 0;
+    
+    let availability = 'Disponible';
+    let waitTime = '2-5 min';
+    
+    if (occupancyRate >= 80) {
+      availability = 'Pocas mesas';
+      waitTime = '15-25 min';
+    } else if (occupancyRate >= 60) {
+      waitTime = '10-15 min';
+    }
+
+    return {
+      id: branch.id.toString(),
+      name: branch.name,
+      image: branch.images && branch.images.length > 0 
+        ? branch.images[0] 
+        : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop',
+      rating: 4.5 + Math.random() * 0.5, // Rating simulado entre 4.5 y 5.0
+      cuisine: 'Restaurante • General',
+      waitTime,
+      distance: '0.8 km', // Distancia simulada
+      availability
+    };
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -124,11 +120,37 @@ const Dashboard = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {popularRestaurants.map((restaurant) => (
-            <RestaurantCard key={restaurant.id} {...restaurant} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-lg p-4 animate-pulse">
+                <div className="w-full h-32 bg-gray-200 rounded mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded mb-2"></div>
+                <div className="flex justify-between">
+                  <div className="h-3 bg-gray-200 rounded w-16"></div>
+                  <div className="h-3 bg-gray-200 rounded w-16"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Error al cargar los restaurantes</p>
+            <p className="text-sm text-gray-500">Inténtalo de nuevo más tarde</p>
+          </div>
+        ) : branches && branches.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {branches.map((branch) => (
+              <RestaurantCard key={branch.id} {...transformBranchToRestaurant(branch)} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No hay restaurantes disponibles</p>
+            <p className="text-sm text-gray-500">Pronto tendremos más opciones para ti</p>
+          </div>
+        )}
       </div>
 
       {/* Sección de descubrimiento */}

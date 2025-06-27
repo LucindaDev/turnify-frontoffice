@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Clock, Star, Users } from 'lucide-react';
 
@@ -15,6 +16,7 @@ interface RestaurantCardProps {
 }
 
 const RestaurantCard: React.FC<RestaurantCardProps> = ({
+  id,
   name,
   image,
   rating,
@@ -23,8 +25,17 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   distance,
   availability
 }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/restaurant/${id}`);
+  };
+
   return (
-    <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <Card 
+      className="overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="relative">
         <img 
           src={image} 
@@ -43,7 +54,7 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-1">
             <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            <span>{rating}</span>
+            <span>{rating.toFixed(1)}</span>
           </div>
           
           <div className="flex items-center gap-1">
@@ -53,7 +64,9 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           
           <div className="flex items-center gap-1">
             <Users className="w-3 h-3" />
-            <span className="text-green-600 font-medium">{availability}</span>
+            <span className={`font-medium ${availability === 'Disponible' ? 'text-green-600' : 'text-yellow-600'}`}>
+              {availability}
+            </span>
           </div>
         </div>
       </div>
