@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Reservations from "./pages/Reservations";
 import Account from "./pages/Account";
 import RestaurantDetail from "./pages/RestaurantDetail";
+import ReservationDetail from "./pages/ReservationDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/reservations" element={<Reservations />} />
+            <Route path="/reservation/:id" element={<ReservationDetail />} />
             <Route path="/account" element={<Account />} />
             <Route path="/restaurant/:id" element={<RestaurantDetail />} />
             <Route path="/auth" element={<Auth />} />

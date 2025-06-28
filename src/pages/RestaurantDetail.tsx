@@ -1,17 +1,15 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useBranches } from '@/hooks/useBranches';
-import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Clock, MapPin, Users, Star, CalendarIcon, X, Circle, CheckCircle, AlertCircle } from 'lucide-react';
+import { useCreateReservation } from '@/hooks/useReservations';
+import { ArrowLeft, Clock, MapPin, Users, Star, CalendarIcon, Circle, CheckCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTables } from '@/hooks/useTables';
 import { formatTime } from '@/utils/Utils';
@@ -19,31 +17,37 @@ import { formatTime } from '@/utils/Utils';
 const RestaurantDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { data: branches, isLoading } = useBranches(id ? parseInt(id) : undefined);
   const { data: tables, isFetching } = useTables(id ? parseInt(id) : undefined);
+  const createReservation = useCreateReservation();
+  
   const [activeTab, setActiveTab] = useState<'info' | 'reservation'>('info');
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState('');
   const [guestCount, setGuestCount] = useState('1');
+  const [reservationType, setReservationType] = useState<'traditional' | 'time_limited'>('traditional');
+  
   const branch = branches && branches.length > 0 ? branches[0] : null;
 
-  //console.log(tables)
-
-  const handleReservation = () => {
-    if (!selectedDate || !selectedTime || !guestCount) {
-      toast({
-        variant: "destructive",
-        title: "Campos incompletos",
-        description: "Por favor completa todos los campos para continuar.",
-      });
+  const handleReservation = async () => {
+    if (!selectedDate || !selectedTime || !guestCount || !branch) {
       return;
     }
 
-    toast({
-      title: "Reservación confirmada",
-      description: `Tu reservación para ${guestCount} ${parseInt(guestCount) === 1 ? 'persona' : 'personas'} ha sido confirmada.`,
-    });
+    const reservationData = {
+      branch_id: branch.id,
+      reservation_type: reservationType,
+      reservation_date: format(selectedDate, 'yyyy-MM-dd'),
+      reservation_time: selectedTime,
+      number_of_guests: parseInt(guestCount),
+    };
+
+    try {
+      await createReservation.mutateAsync(reservationData);
+      navigate('/reservations');
+    } catch (error) {
+      console.error('Error creating reservation:', error);
+    }
   };
 
   if (isLoading) {
@@ -93,7 +97,7 @@ const RestaurantDetail = () => {
 
   const getOccupancyStatus = () => {
     const totalCapacity = branch.total_tables;
-    const occupiedCapacity = Math.floor(Math.random() * totalCapacity); // Simulated for demo
+    const occupiedCapacity = Math.floor(Math.random() * totalCapacity);
     const percentage = totalCapacity > 0 ? (occupiedCapacity / totalCapacity) * 100 : 0;
 
     if (percentage <= 40) {
@@ -103,12 +107,11 @@ const RestaurantDetail = () => {
     } else if (percentage <= 90) {
       return { status: 'Casi lleno', color: 'bg-orange-500', textColor: 'text-orange-600', icon: AlertCircle };
     } else {
-      return { status: 'Sin disponibilidad', color: 'bg-red-500', textColor: 'text-red-600', icon: X };
+      return { status: 'Sin disponibilidad', color: 'bg-red-500', textColor: 'text-red-600', icon: AlertCircle };
     }
   };
 
   const occupancyStatus = getOccupancyStatus();
-
   const StatusIcon = occupancyStatus.icon;
 
   const mainImage = branch.images && branch.images.length > 0
@@ -122,7 +125,6 @@ const RestaurantDetail = () => {
 
     if (!startTime || !endTime) return times;
 
-    // Parse "HH:mm" to Date objects (today's date)
     const [startHour, startMinute] = startTime.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
 
@@ -133,11 +135,9 @@ const RestaurantDetail = () => {
     let current = new Date(start);
 
     while (current <= end) {
-      // Format as "HH:mm"
       const h = current.getHours().toString().padStart(2, '0');
       const m = current.getMinutes().toString().padStart(2, '0');
       times.push(`${h}:${m}`);
-      // Add 2 hours
       current.setHours(current.getHours() + 2);
     }
 
@@ -145,8 +145,6 @@ const RestaurantDetail = () => {
   }
 
   const availableTimes = getAvailableTimes();
-
-  console.log(availableTimes)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -172,7 +170,6 @@ const RestaurantDetail = () => {
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-gray-900 rounded-lg flex-shrink-0">icono</div>
           <h1 className="text-xl font-bold text-gray-900 flex items-center">{branch.name}</h1>
-
         </div>
 
         {/* Time - Status - Rating - Section */}
@@ -201,7 +198,6 @@ const RestaurantDetail = () => {
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Tabs */}
@@ -291,6 +287,20 @@ const RestaurantDetail = () => {
               </div>
 
               <div className="space-y-4">
+                {/* Tipo de Reservación */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Reservación</label>
+                  <Select value={reservationType} onValueChange={(value: 'traditional' | 'time_limited') => setReservationType(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="traditional">Tradicional</SelectItem>
+                      <SelectItem value="time_limited">Con tiempo límite</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Fecha */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
@@ -358,8 +368,12 @@ const RestaurantDetail = () => {
                   </Select>
                 </div>
 
-                <Button onClick={handleReservation} className="w-full bg-orange-500 hover:bg-orange-600">
-                  Confirmar Reservación
+                <Button 
+                  onClick={handleReservation} 
+                  className="w-full bg-orange-500 hover:bg-orange-600"
+                  disabled={!selectedDate || !selectedTime || !guestCount || createReservation.isPending}
+                >
+                  {createReservation.isPending ? 'Creando...' : 'Confirmar Reservación'}
                 </Button>
               </div>
             </CardContent>
