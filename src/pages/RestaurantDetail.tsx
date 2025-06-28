@@ -20,7 +20,7 @@ const RestaurantDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { data: branches, isLoading } = useBranches(id ? parseInt(id) : undefined);
-  const { data: tables } = useTables(id ? parseInt(id) : undefined);
+  const { data: tables, isFetching } = useTables(id ? parseInt(id) : undefined);
   const [activeTab, setActiveTab] = useState<'info' | 'reservation'>('info');
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState('');
@@ -54,6 +54,17 @@ const RestaurantDetail = () => {
         </div>
       </div>
     );
+  }
+
+  if (isFetching) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando mesas...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!branch) {
@@ -222,7 +233,7 @@ const RestaurantDetail = () => {
                 {/* Tables Status */}
                 <div className="grid grid-cols-2 gap-3">
                   {tables.map((table) => (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center" key={table.id}>
                       <p className="font-medium text-green-800">{table.name}</p>
                       <p className="text-sm text-green-600">{table.places} lugares</p>
                       <p className="text-xs text-green-600 font-medium">Disponible</p>

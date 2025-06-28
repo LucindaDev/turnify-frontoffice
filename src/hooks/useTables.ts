@@ -8,7 +8,10 @@ export const useTables = (branch_id: number) => {
     queryKey: ['tables'],
     queryFn: async () => {
       console.log('Fetching tables from Supabase...');
-      
+
+      // Delay de 3 segundos
+      //await new Promise((resolve) => setTimeout(resolve, 3000));
+
       const { data, error } = await supabase
         .from('tables')
         .select('*')
@@ -19,7 +22,7 @@ export const useTables = (branch_id: number) => {
         console.error('Error fetching tables:', error);
         throw error;
       }
-
+      
       console.log('Tables fetched successfully:', data);
       return data as Table[];
     },
