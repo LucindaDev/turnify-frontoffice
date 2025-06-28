@@ -137,6 +137,12 @@ const RestaurantDetail = () => {
     while (current <= end) {
       const h = current.getHours().toString().padStart(2, '0');
       const m = current.getMinutes().toString().padStart(2, '0');
+
+      // Exclude times that are less than 30 minutes from now
+      if (current.getTime() < now.getTime() + 30 * 60 * 1000) {
+        current.setMinutes(current.getMinutes() + 30);
+        continue;
+      }
       times.push(`${h}:${m}`);
       current.setHours(current.getHours() + 2);
     }
