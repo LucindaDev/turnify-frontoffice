@@ -32,13 +32,13 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   };
 
   return (
-    <Card 
+    <Card
       className="overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
       onClick={handleClick}
     >
       <div className="relative">
-        <img 
-          src={image} 
+        <img
+          src={image}
           alt={name}
           className="w-full h-32 object-cover"
         />
@@ -46,22 +46,24 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
           {distance}
         </div>
       </div>
-      
+
       <div className="p-3">
         <h3 className="font-semibold text-gray-900 mb-1">{name}</h3>
         <p className="text-sm text-gray-600 mb-2">{cuisine}</p>
-        
+
         <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center gap-1">
-            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            <span>{rating.toFixed(1)}</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+              <span>{rating.toFixed(1)}</span>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              <span>{waitTime}</span>
+            </div>
           </div>
-          
-          <div className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            <span>{waitTime}</span>
-          </div>
-          
+
           <div className="flex items-center gap-1">
             <Users className="w-3 h-3" />
             <span className={`font-medium ${availability === 'Disponible' ? 'text-green-600' : 'text-yellow-600'}`}>

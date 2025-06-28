@@ -11,21 +11,23 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useBranches } from '@/hooks/useBranches';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Clock, MapPin, Users, Star, CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Users, Star, CalendarIcon, X, Circle, CheckCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTables } from '@/hooks/useTables';
 
 const RestaurantDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { data: branches, isLoading } = useBranches();
-  
+  const { data: branches, isLoading } = useBranches(id ? parseInt(id) : undefined);
+  const { data: tables } = useTables(id ? parseInt(id) : undefined);
   const [activeTab, setActiveTab] = useState<'info' | 'reservation'>('info');
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState('');
   const [guestCount, setGuestCount] = useState('1');
+  const branch = branches && branches.length > 0 ? branches[0] : null;
 
-  const branch = branches?.find(b => b.id.toString() === id);
+  //console.log(tables)
 
   const handleReservation = () => {
     if (!selectedDate || !selectedTime || !guestCount) {
@@ -67,7 +69,7 @@ const RestaurantDetail = () => {
 
   const getStatusInfo = () => {
     const occupancyRate = branch.total_tables > 0 ? (branch.active_tables / branch.total_tables) * 100 : 0;
-    
+
     if (occupancyRate < 30) return { text: 'Tranquilo', color: 'text-green-600', time: '2 min' };
     if (occupancyRate < 60) return { text: 'Flujo Normal', color: 'text-blue-600', time: '5-10 min' };
     if (occupancyRate < 80) return { text: 'Casi lleno', color: 'text-yellow-600', time: '15-20 min' };
@@ -76,15 +78,34 @@ const RestaurantDetail = () => {
   };
 
   const statusInfo = getStatusInfo();
-  const mainImage = branch.images && branch.images.length > 0 
-    ? branch.images[0] 
+
+  const getOccupancyStatus = () => {
+    const totalCapacity = branch.total_tables;
+    const occupiedCapacity = Math.floor(Math.random() * totalCapacity); // Simulated for demo
+    const percentage = totalCapacity > 0 ? (occupiedCapacity / totalCapacity) * 100 : 0;
+
+    if (percentage <= 40) {
+      return { status: 'Espacio de sobra', color: 'bg-green-500', textColor: 'text-green-600', icon: CheckCircle };
+    } else if (percentage <= 70) {
+      return { status: 'Flujo normal', color: 'bg-yellow-500', textColor: 'text-yellow-600', icon: Circle };
+    } else if (percentage <= 90) {
+      return { status: 'Casi lleno', color: 'bg-orange-500', textColor: 'text-orange-600', icon: AlertCircle };
+    } else {
+      return { status: 'Sin disponibilidad', color: 'bg-red-500', textColor: 'text-red-600', icon: X };
+    }
+  };
+  const occupancyStatus = getOccupancyStatus();
+  const StatusIcon = occupancyStatus.icon;
+
+  const mainImage = branch.images && branch.images.length > 0
+    ? branch.images[0]
     : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop';
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Image */}
       <div className="relative">
-        <img 
+        <img
           src={mainImage}
           alt={branch.name}
           className="w-full h-64 object-cover"
@@ -101,32 +122,39 @@ const RestaurantDetail = () => {
 
       {/* Restaurant Info */}
       <div className="p-4 bg-white">
-        <div className="flex items-start gap-3 mb-4">
-          <div className="w-12 h-12 bg-gray-900 rounded-lg flex-shrink-0"></div>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-gray-900">{branch.name}</h1>
-            <div className="flex items-center gap-4 mt-2 text-sm">
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4 text-gray-500" />
-                <span className="text-gray-600">Tiempo</span>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 bg-gray-900 rounded-lg flex-shrink-0">icono</div>
+          <h1 className="text-xl font-bold text-gray-900 flex items-center">{branch.name}</h1>
+
+        </div>
+
+        {/* Time - Status - Rating - Section */}
+        <div className="flex items-center justify-center gap-4 mt-2 text-sm mb-3">
+          <div className="flex justify-center">
+            <div className="grid grid-cols-3 gap-6 max-w-sm w-full">
+              {/* Wait Time */}
+              <div className="bg-gray-50 rounded-lg p-2 text-center">
+                <Clock className="w-4 h-4 text-gray-600 mx-auto mb-1" />
+                <div className="text-xs text-gray-500">Tiempo</div>
                 <span className={statusInfo.color}>{statusInfo.time}</span>
               </div>
-              
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                </div>
-                <span className="text-gray-600">Estado</span>
+
+              {/* Status */}
+              <div className="bg-gray-50 rounded-lg p-2 text-center">
+                <StatusIcon className={`w-4 h-4 mx-auto mb-1 ${occupancyStatus.textColor}`} />
+                <div className="text-xs text-gray-500">Estado</div>
                 <span className={statusInfo.color}>{statusInfo.text}</span>
               </div>
-              
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                <span className="text-gray-600">Rating</span>
-                <span className="font-medium">4.8</span>
+
+              {/* Rating */}
+              <div className="bg-gray-50 rounded-lg p-2 text-center">
+                <Star className="w-4 h-4 text-yellow-500 mx-auto mb-1 fill-current" />
+                <div className="text-xs text-gray-500">Rating</div>
+                <div className="font-bold text-sm text-gray-900">4.8</div>
               </div>
             </div>
           </div>
+
         </div>
 
         {/* Tabs */}
@@ -187,23 +215,19 @@ const RestaurantDetail = () => {
                   <Users className="w-5 h-5 text-gray-600" />
                   <div>
                     <h3 className="font-medium text-gray-900">Capacidad</h3>
-                    <p className="text-sm text-gray-600">{branch.total_tables} lugares totales</p>
+                    <p className="text-sm text-gray-600">{branch.active_tables} lugares totales</p>
                   </div>
                 </div>
 
                 {/* Tables Status */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                    <p className="font-medium text-green-800">MESA 1</p>
-                    <p className="text-sm text-green-600">4 lugares</p>
-                    <p className="text-xs text-green-600 font-medium">Disponible</p>
-                  </div>
-                  
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                    <p className="font-medium text-green-800">MESA 2</p>
-                    <p className="text-sm text-green-600">8 lugares</p>
-                    <p className="text-xs text-green-600 font-medium">Disponible</p>
-                  </div>
+                  {tables.map((table) => (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                      <p className="font-medium text-green-800">{table.name}</p>
+                      <p className="text-sm text-green-600">{table.places} lugares</p>
+                      <p className="text-xs text-green-600 font-medium">Disponible</p>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SearchBar from '@/components/SearchBar';
 import RestaurantCard from '@/components/RestaurantCard';
@@ -9,6 +9,7 @@ import { ChevronRight, Utensils, Clock, MapPin } from 'lucide-react';
 import { useBranches } from '@/hooks/useBranches';
 
 const Dashboard = () => {
+  const [isReservationActive, setIsReservationActive] = useState(false);
   const { data: branches, isLoading, error } = useBranches();
 
   const categories = [
@@ -20,10 +21,10 @@ const Dashboard = () => {
 
   const transformBranchToRestaurant = (branch: any) => {
     const occupancyRate = branch.total_tables > 0 ? (branch.active_tables / branch.total_tables) * 100 : 0;
-    
+
     let availability = 'Disponible';
     let waitTime = '2-5 min';
-    
+
     if (occupancyRate >= 80) {
       availability = 'Pocas mesas';
       waitTime = '15-25 min';
@@ -34,8 +35,8 @@ const Dashboard = () => {
     return {
       id: branch.id.toString(),
       name: branch.name,
-      image: branch.images && branch.images.length > 0 
-        ? branch.images[0] 
+      image: branch.images && branch.images.length > 0
+        ? branch.images[0]
         : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop',
       rating: 4.5 + Math.random() * 0.5, // Rating simulado entre 4.5 y 5.0
       cuisine: 'Restaurante • General',
@@ -49,24 +50,30 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header con barra de búsqueda */}
       <SearchBar />
-      
+
       {/* Reserva activa (si existe) */}
-      <div className="px-4 py-3">
-        <Card className="bg-gradient-to-r from-orange-400 to-orange-500 text-white border-0">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm opacity-90">Tu reservación</p>
-                <p className="font-semibold">Restaurante Pujol</p>
-                <p className="text-sm opacity-90">Hoy, 8:00 PM • Mesa para 4</p>
-              </div>
-              <Button size="sm" variant="secondary" className="bg-white text-orange-600 hover:bg-gray-100">
-                Ver detalles
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+
+      {
+        isReservationActive && (
+          <div className="px-4 py-3">
+            <Card className="bg-gradient-to-r from-orange-400 to-orange-500 text-white border-0">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm opacity-90">Tu reservación</p>
+                    <p className="font-semibold">Restaurante Pujol</p>
+                    <p className="text-sm opacity-90">Hoy, 8:00 PM • Mesa para 4</p>
+                  </div>
+                  <Button size="sm" variant="secondary" className="bg-white text-orange-600 hover:bg-gray-100">
+                    Ver detalles
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )
+      }
+
 
       {/* Categorías */}
       <div className="px-4 py-2">
@@ -83,7 +90,8 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Sección de reserva rápida */}
+      {
+      /* Sección de reserva rápida 
       <div className="px-4 py-3">
         <Card>
           <CardHeader className="pb-3">
@@ -106,6 +114,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+      */}
 
       {/* Restaurantes populares */}
       <div className="px-4 py-3">
@@ -119,7 +128,7 @@ const Dashboard = () => {
             <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
-        
+
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {[1, 2, 3].map((i) => (
@@ -161,12 +170,12 @@ const Dashboard = () => {
             Descubre nuevos lugares
           </h2>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           <Card className="cursor-pointer hover:shadow-md transition-shadow">
             <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=200&h=120&fit=crop" 
+              <img
+                src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?w=200&h=120&fit=crop"
                 alt="Nuevos restaurantes"
                 className="w-full h-24 object-cover rounded-t-lg"
               />
@@ -176,11 +185,11 @@ const Dashboard = () => {
               <p className="text-xs text-gray-500">Descubre los más recientes</p>
             </CardContent>
           </Card>
-          
+
           <Card className="cursor-pointer hover:shadow-md transition-shadow">
             <div className="relative">
-              <img 
-                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=120&fit=crop" 
+              <img
+                src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=200&h=120&fit=crop"
                 alt="Ofertas especiales"
                 className="w-full h-24 object-cover rounded-t-lg"
               />
