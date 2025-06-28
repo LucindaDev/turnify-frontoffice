@@ -10,15 +10,8 @@ export const useBranches = () => {
       
       const { data, error } = await supabase
         .from('branches')
-        .select(`
-          *,
-          companies (
-            name,
-            email,
-            phone_number
-          )
-        `)
-        .eq('status', 'ACTIVE');
+        .select('*')
+        .eq('status', 'active');
 
       if (error) {
         console.error('Error fetching branches:', error);
