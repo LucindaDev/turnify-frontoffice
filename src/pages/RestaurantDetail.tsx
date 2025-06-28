@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Clock, MapPin, Users, Star, CalendarIcon, X, Circle, CheckCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTables } from '@/hooks/useTables';
+import { formatTime } from '@/utils/Utils';
 
 const RestaurantDetail = () => {
   const { id } = useParams();
@@ -105,12 +106,47 @@ const RestaurantDetail = () => {
       return { status: 'Sin disponibilidad', color: 'bg-red-500', textColor: 'text-red-600', icon: X };
     }
   };
+
   const occupancyStatus = getOccupancyStatus();
+
   const StatusIcon = occupancyStatus.icon;
 
   const mainImage = branch.images && branch.images.length > 0
     ? branch.images[0]
     : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop';
+
+  const getAvailableTimes = () => {
+    const times: string[] = [];
+    const startTime = branch.opens_at;
+    const endTime = branch.closes_at;
+
+    if (!startTime || !endTime) return times;
+
+    // Parse "HH:mm" to Date objects (today's date)
+    const [startHour, startMinute] = startTime.split(':').map(Number);
+    const [endHour, endMinute] = endTime.split(':').map(Number);
+
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHour, startMinute, 0, 0);
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMinute, 0, 0);
+
+    let current = new Date(start);
+
+    while (current <= end) {
+      // Format as "HH:mm"
+      const h = current.getHours().toString().padStart(2, '0');
+      const m = current.getMinutes().toString().padStart(2, '0');
+      times.push(`${h}:${m}`);
+      // Add 2 hours
+      current.setHours(current.getHours() + 2);
+    }
+
+    return times;
+  }
+
+  const availableTimes = getAvailableTimes();
+
+  console.log(availableTimes)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -199,7 +235,10 @@ const RestaurantDetail = () => {
                   <div>
                     <h3 className="font-medium text-gray-900">Horario</h3>
                     <p className="text-sm text-gray-600">
-                      {branch.opens_at || '07:30'} a. m. - {branch.closes_at || '05:30'} p. m.
+                      {branch.opens_at && branch.closes_at
+                        ? `${formatTime(branch.opens_at)} - ${formatTime(branch.closes_at)}`
+                        : 'No especificado'
+                      }
                     </p>
                   </div>
                 </div>
@@ -281,7 +320,7 @@ const RestaurantDetail = () => {
                   </Popover>
                 </div>
 
-                {/* Hora */}
+                {/* Horarios disponibles */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Hora</label>
                   <Select value={selectedTime} onValueChange={setSelectedTime}>
@@ -289,16 +328,11 @@ const RestaurantDetail = () => {
                       <SelectValue placeholder="Seleccionar hora" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="12:00">12:00 PM</SelectItem>
-                      <SelectItem value="12:30">12:30 PM</SelectItem>
-                      <SelectItem value="13:00">1:00 PM</SelectItem>
-                      <SelectItem value="13:30">1:30 PM</SelectItem>
-                      <SelectItem value="14:00">2:00 PM</SelectItem>
-                      <SelectItem value="14:30">2:30 PM</SelectItem>
-                      <SelectItem value="19:00">7:00 PM</SelectItem>
-                      <SelectItem value="19:30">7:30 PM</SelectItem>
-                      <SelectItem value="20:00">8:00 PM</SelectItem>
-                      <SelectItem value="20:30">8:30 PM</SelectItem>
+                      {availableTimes.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {formatTime(time)}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
