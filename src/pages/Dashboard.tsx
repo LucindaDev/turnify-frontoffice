@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import SearchBar from '@/components/SearchBar';
 import RestaurantCard from '@/components/RestaurantCard';
@@ -7,10 +7,18 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Utensils, Clock, MapPin } from 'lucide-react';
 import { useBranches } from '@/hooks/useBranches';
+import { useReservations } from '@/hooks/useReservations';
+import { es } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 const Dashboard = () => {
-  const [isReservationActive, setIsReservationActive] = useState(false);
+
+  const navigate = useNavigate();
+  const { data: reservations } = useReservations();
   const { data: branches, isLoading, error } = useBranches();
+  const activeReservation = reservations?.find(reservation => reservation.status === 'scheduled') || null;
+  console.log(activeReservation)
+
 
   const categories = [
     { name: 'Italiana', icon: '🍝', color: 'bg-red-100' },
@@ -54,17 +62,21 @@ const Dashboard = () => {
       {/* Reserva activa (si existe) */}
 
       {
-        isReservationActive && (
+        activeReservation && (
           <div className="px-4 py-3">
             <Card className="bg-gradient-to-r from-orange-400 to-orange-500 text-white border-0">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm opacity-90">Tu reservación</p>
-                    <p className="font-semibold">Restaurante Pujol</p>
-                    <p className="text-sm opacity-90">Hoy, 8:00 PM • Mesa para 4</p>
+                    <p className="font-semibold">{activeReservation.branches?.name}</p>
+                    <p className="text-sm opacity-90">{format(new Date(activeReservation.reservation_date), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })} • Mesa para {activeReservation.number_of_guests}</p>
                   </div>
-                  <Button size="sm" variant="secondary" className="bg-white text-orange-600 hover:bg-gray-100">
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="bg-white text-orange-600 hover:bg-gray-100"
+                    onClick={() => navigate(`/reservation/${activeReservation.id}`)}>
                     Ver detalles
                   </Button>
                 </div>

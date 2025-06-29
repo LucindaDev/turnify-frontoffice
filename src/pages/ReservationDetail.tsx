@@ -11,16 +11,20 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { useUpdateReservation, useCancelReservation, type Reservation } from '@/hooks/useReservations';
+import { useUpdateReservation, useCancelReservation, useReservation, type Reservation } from '@/hooks/useReservations';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Calendar as CalendarIcon, Clock, MapPin, Users, Phone, User, FileText, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { formatTime } from '@/utils/Utils';
+import { formatTime, formatDate } from '@/utils/Utils';
 import { cn } from '@/lib/utils';
 
 const ReservationDetail = () => {
   const { id } = useParams();
+
+  // Fetch reservation details
+  const { data: reservation, isLoading, error } = useReservation(id);
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -37,46 +41,6 @@ const ReservationDetail = () => {
   const [guestCount, setGuestCount] = useState('');
   const [notes, setNotes] = useState('');
 
-  const { data: reservation, isLoading, error } = useQuery({
-    queryKey: ['reservation', id],
-    queryFn: async () => {
-      if (!id) throw new Error('ID de reservación requerido');
-
-      console.log('Fetching reservation details for ID:', id);
-
-      const { data, error } = await supabase
-        .from('reservations')
-        .select(`
-          *,
-          branches (
-            name,
-            location,
-            images,
-            opens_at,
-            closes_at
-          )
-        `)
-        .eq('id', parseInt(id))
-        .single();
-
-      if (error) {
-        console.error('Error fetching reservation:', error);
-        throw error;
-      }
-
-      console.log('Reservation fetched successfully:', data);
-      return data as Reservation & {
-        branches: {
-          name: string;
-          location: string;
-          images: string[];
-          opens_at: string;
-          closes_at: string;
-        };
-      };
-    },
-    enabled: !!id,
-  });
 
   // Initialize form values when reservation loads
   React.useEffect(() => {
@@ -352,7 +316,7 @@ const ReservationDetail = () => {
                   <div>
                     <p className="font-medium">Fecha y Hora</p>
                     <p className="text-sm text-gray-600">
-                      {format(new Date(reservation.reservation_date), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })} 
+                      {formatDate(reservation.reservation_date)}
                       {' a las '} 
                       {formatTime(reservation.reservation_time)}
                     </p>

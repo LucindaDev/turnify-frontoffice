@@ -50,9 +50,9 @@ export const useReservations = () => {
     queryKey: ['reservations'],
     queryFn: async () => {
       console.log('Fetching user reservations...');
-      
+
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         throw new Error('Usuario no autenticado');
       }
@@ -82,6 +82,50 @@ export const useReservations = () => {
   });
 };
 
+export const useReservation = (id: string) => {
+  return useQuery({
+    queryKey: ['reservation', id],
+    queryFn: async () => {
+      if (!id) throw new Error('ID de reservación requerido');
+
+      console.log('Fetching reservation details for ID:', id);
+
+      const { data, error } = await supabase
+        .from('reservations')
+        .select(`
+          *,
+          branches (
+            name,
+            location,
+            images,
+            opens_at,
+            closes_at
+          )
+        `)
+        .eq('id', parseInt(id))
+        .single();
+
+      if (error) {
+        console.error('Error fetching reservation:', error);
+        throw error;
+      }
+
+      console.log('Reservation fetched successfully:', data);
+      return data as Reservation & {
+        branches: {
+          name: string;
+          location: string;
+          images: string[];
+          opens_at: string;
+          closes_at: string;
+        };
+      };
+    },
+    enabled: !!id,
+  });
+};
+
+
 export const useCreateReservation = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -89,9 +133,9 @@ export const useCreateReservation = () => {
   return useMutation({
     mutationFn: async (reservationData: CreateReservationData) => {
       console.log('Creating reservation:', reservationData);
-      
+
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         throw new Error('Usuario no autenticado');
       }
@@ -142,9 +186,11 @@ export const useUpdateReservation = () => {
     mutationFn: async ({ id, updates }: { id: number; updates: Partial<Reservation> }) => {
       console.log('Updating reservation:', id, updates);
 
+      // Exclude 'id' from updates to avoid type error
+      const { id: _id, ...updatesWithoutId } = updates as Partial<Reservation> & { id?: number };
       const { data, error } = await supabase
         .from('reservations')
-        .update(updates)
+        .update(updatesWithoutId)
         .eq('id', id)
         .select()
         .single();

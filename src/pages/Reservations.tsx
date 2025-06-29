@@ -6,9 +6,7 @@ import { Button } from '@/components/ui/button';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useReservations } from '@/hooks/useReservations';
 import { Calendar, Clock, MapPin, Users, CalendarX } from 'lucide-react';
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { formatTime } from '@/utils/Utils';
+import { formatTime, formatDate } from '@/utils/Utils';
 
 const Reservations = () => {
   const navigate = useNavigate();
@@ -127,7 +125,7 @@ const Reservations = () => {
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Calendar className="w-4 h-4" />
-                      <span>{format(new Date(reservation.reservation_date), "EEEE, d 'de' MMMM 'de' yyyy", { locale: es })}</span>
+                      <span>{formatDate(reservation.reservation_date)}</span>
                     </div>
                     
                     <div className="flex items-center gap-2 text-sm text-gray-600">
