@@ -9,6 +9,7 @@ export interface Table {
 export interface Branch {
   id: number;
   company_id: number;
+  menu_url: string;
   name: string;
   location: string;
   opens_at: string;
