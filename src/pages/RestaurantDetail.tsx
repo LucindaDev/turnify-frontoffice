@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useBranches } from '@/hooks/useBranches';
 import { useCreateReservation } from '@/hooks/useReservations';
-import { ArrowLeft, Clock, MapPin, Users, Star, CalendarIcon, Circle, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Users, Star, CalendarIcon, Circle, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTables } from '@/hooks/useTables';
 import { formatTime } from '@/utils/Utils';
@@ -257,6 +257,31 @@ const RestaurantDetail = () => {
                     <p className="text-sm text-gray-600">{branch.location || 'Ubicación no disponible'}</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Menú */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <FileText className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <h3 className="font-medium text-gray-900">Menú</h3>
+                  </div>
+                </div>
+                {branch.menu_url ? (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => window.open(branch.menu_url, '_blank')}
+                  >
+                    Ver Menú Completo
+                  </Button>
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-2">
+                    Menú no disponible
+                  </p>
+                )}
               </CardContent>
             </Card>
 
