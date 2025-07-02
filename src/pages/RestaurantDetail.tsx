@@ -227,6 +227,7 @@ const RestaurantDetail = () => {
 
       {/* Content */}
       <div className="p-4">
+        {/* Info Tab */}
         {activeTab === 'info' ? (
           <div className="space-y-4">
             {/* Horario */}
@@ -311,12 +312,12 @@ const RestaurantDetail = () => {
           </div>
         ) : (
           <Card>
+            {/* MARK: - Reservation Tab */}
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-4">
                 <CalendarIcon className="w-5 h-5 text-orange-600" />
                 <h3 className="font-medium text-gray-900">Hacer Reservación</h3>
               </div>
-
               <div className="space-y-4">
                 {/* Tipo de Reservación */}
                 <div>
@@ -365,23 +366,7 @@ const RestaurantDetail = () => {
                   </Popover>
                 </div>
 
-                {/* Horarios disponibles */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Hora</label>
-                  <Select value={selectedTime} onValueChange={setSelectedTime}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar hora" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableTimes.map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {formatTime(time)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
+                
                 {/* Número de personas */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Número de personas</label>
@@ -399,6 +384,22 @@ const RestaurantDetail = () => {
                   </Select>
                 </div>
 
+                {/* Horarios disponibles */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Hora</label>
+                  <Select value={selectedTime} onValueChange={setSelectedTime}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar hora" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableTimes.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {formatTime(time)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Button 
                   onClick={handleReservation} 
                   className="w-full bg-orange-500 hover:bg-orange-600"
