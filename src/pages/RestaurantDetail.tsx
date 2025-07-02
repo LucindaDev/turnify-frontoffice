@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useBranches } from '@/hooks/useBranches';
 import { useCreateReservation } from '@/hooks/useReservations';
+import { useAvailableTimes } from '@/hooks/useAvailableTimes';
 import { ArrowLeft, Clock, MapPin, Users, Star, CalendarIcon, Circle, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTables } from '@/hooks/useTables';
@@ -24,10 +25,27 @@ const RestaurantDetail = () => {
   const [activeTab, setActiveTab] = useState<'info' | 'reservation'>('info');
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState('');
-  const [guestCount, setGuestCount] = useState('1');
+  const [guestCount, setGuestCount] = useState('');
   const [reservationType, setReservationType] = useState<'traditional' | 'time_limited'>('traditional');
   
   const branch = branches && branches.length > 0 ? branches[0] : null;
+
+  // Use the hook to get available times
+  const { data: availableTimes, isLoading: isLoadingTimes } = useAvailableTimes(
+    branch?.id || 0,
+    selectedDate || new Date(),
+    parseInt(guestCount) || 1
+  );
+
+  // Log the response from the hook for debugging
+  useEffect(() => {
+    if (availableTimes) {
+      console.log('Available times from hook:', availableTimes);
+    }
+  }, [availableTimes]);
+
+  // Check if we should fetch available times
+  const shouldFetchTimes = !!(reservationType && selectedDate && guestCount && branch?.id);
 
   const handleReservation = async () => {
     if (!selectedDate || !selectedTime || !guestCount || !branch) {
@@ -117,40 +135,6 @@ const RestaurantDetail = () => {
   const mainImage = branch.images && branch.images.length > 0
     ? branch.images[0]
     : 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop';
-
-  const getAvailableTimes = () => {
-    const times: string[] = [];
-    const startTime = branch.opens_at;
-    const endTime = branch.closes_at;
-
-    if (!startTime || !endTime) return times;
-
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-
-    const now = new Date();
-    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), startHour, startMinute, 0, 0);
-    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMinute, 0, 0);
-
-    let current = new Date(start);
-
-    while (current <= end) {
-      const h = current.getHours().toString().padStart(2, '0');
-      const m = current.getMinutes().toString().padStart(2, '0');
-
-      // Exclude times that are less than 30 minutes from now
-      if (current.getTime() < now.getTime() + 30 * 60 * 1000) {
-        current.setMinutes(current.getMinutes() + 30);
-        continue;
-      }
-      times.push(`${h}:${m}`);
-      current.setHours(current.getHours() + 2);
-    }
-
-    return times;
-  }
-
-  const availableTimes = getAvailableTimes();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -353,7 +337,10 @@ const RestaurantDetail = () => {
                       <Calendar
                         mode="single"
                         selected={selectedDate}
-                        onSelect={setSelectedDate}
+                        onSelect={(date) => {
+                          setSelectedDate(date);
+                          setSelectedTime(''); // Reset time when date changes
+                        }}
                         disabled={(date) => {
                           const today = new Date();
                           today.setHours(0, 0, 0, 0);
@@ -366,13 +353,15 @@ const RestaurantDetail = () => {
                   </Popover>
                 </div>
 
-                
                 {/* Número de personas */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Número de personas</label>
-                  <Select value={guestCount} onValueChange={setGuestCount}>
+                  <Select value={guestCount} onValueChange={(value) => {
+                    setGuestCount(value);
+                    setSelectedTime(''); // Reset time when guest count changes
+                  }}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Seleccionar número de personas" />
                     </SelectTrigger>
                     <SelectContent>
                       {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
@@ -387,19 +376,36 @@ const RestaurantDetail = () => {
                 {/* Horarios disponibles */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Hora</label>
-                  <Select value={selectedTime} onValueChange={setSelectedTime}>
+                  <Select 
+                    value={selectedTime} 
+                    onValueChange={setSelectedTime}
+                    disabled={!shouldFetchTimes}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar hora" />
+                      <SelectValue placeholder={
+                        !shouldFetchTimes 
+                          ? "Completa los campos anteriores" 
+                          : isLoadingTimes 
+                            ? "Cargando horarios..." 
+                            : "Seleccionar hora"
+                      } />
                     </SelectTrigger>
                     <SelectContent>
-                      {availableTimes.map((time) => (
-                        <SelectItem key={time} value={time}>
-                          {formatTime(time)}
+                      {shouldFetchTimes && availableTimes && availableTimes.length > 0 ? (
+                        availableTimes.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {formatTime(time)}
+                          </SelectItem>
+                        ))
+                      ) : shouldFetchTimes && availableTimes && availableTimes.length === 0 ? (
+                        <SelectItem value="" disabled>
+                          No hay horarios disponibles
                         </SelectItem>
-                      ))}
+                      ) : null}
                     </SelectContent>
                   </Select>
                 </div>
+
                 <Button 
                   onClick={handleReservation} 
                   className="w-full bg-orange-500 hover:bg-orange-600"
