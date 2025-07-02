@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useBranches } from '@/hooks/useBranches';
@@ -18,19 +17,19 @@ interface AvailableTime {
  * @param number_of_guests - The number of guests for the reservation.
  * @returns An array representing the available times for the given parameters.
  */
-export const useAvailableTimes = (branch_id: number, reservation_date: Date, number_of_guests: number) => {
+export const useAvailableTimes = (branch_id: number, reservation_date: Date | null, number_of_guests: number) => {
   const { data: branches } = useBranches(branch_id);
   const { data: tables } = useTables(branch_id);
   
   const branch = branches && branches.length > 0 ? branches[0] : null;
 
   return useQuery({
-    queryKey: ['availableTimes', branch_id, reservation_date, number_of_guests],
+    queryKey: ['availableTimes', branch_id, reservation_date?.toISOString(), number_of_guests],
     queryFn: async () => {
       console.log('Fetching available times for:', { branch_id, reservation_date, number_of_guests });
 
-      if (!branch || !tables) {
-        console.log('Branch or tables not loaded yet');
+      if (!branch || !tables || !reservation_date) {
+        console.log('Branch, tables, or reservation_date not available yet');
         return [];
       }
 
@@ -79,7 +78,17 @@ export const useAvailableTimes = (branch_id: number, reservation_date: Date, num
       console.log('Available times calculated:', availableTimes);
       return availableTimes.filter(slot => slot.available).map(slot => slot.time);
     },
-    enabled: !!branch && !!tables && tables.length > 0,
+    // Solo ejecutar cuando tenemos todos los parámetros válidos
+    enabled: !!(
+      branch_id && 
+      branch_id > 0 && 
+      branch && 
+      tables && 
+      tables.length > 0 && 
+      reservation_date && 
+      number_of_guests && 
+      number_of_guests > 0
+    ),
   });
 };
 

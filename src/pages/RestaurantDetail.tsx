@@ -30,11 +30,20 @@ const RestaurantDetail = () => {
   
   const branch = branches && branches.length > 0 ? branches[0] : null;
 
-  // Use the hook to get available times
+  // Solo usar el hook cuando tengamos todos los parámetros válidos
+  const shouldFetchTimes = !!(
+    reservationType && 
+    selectedDate && 
+    guestCount && 
+    parseInt(guestCount) > 0 && 
+    branch?.id
+  );
+
+  // Use the hook to get available times - solo cuando sea necesario
   const { data: availableTimes, isLoading: isLoadingTimes } = useAvailableTimes(
-    branch?.id || 0,
-    selectedDate || new Date(),
-    parseInt(guestCount) || 1
+    shouldFetchTimes ? branch!.id : 0,
+    shouldFetchTimes ? selectedDate! : null,
+    shouldFetchTimes ? parseInt(guestCount) : 0
   );
 
   // Log the response from the hook for debugging
@@ -43,9 +52,6 @@ const RestaurantDetail = () => {
       console.log('Available times from hook:', availableTimes);
     }
   }, [availableTimes]);
-
-  // Check if we should fetch available times
-  const shouldFetchTimes = !!(reservationType && selectedDate && guestCount && branch?.id);
 
   const handleReservation = async () => {
     if (!selectedDate || !selectedTime || !guestCount || !branch) {
