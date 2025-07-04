@@ -404,7 +404,7 @@ const RestaurantDetail = () => {
                           </SelectItem>
                         ))
                       ) : shouldFetchTimes && availableTimes && availableTimes.length === 0 ? (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="no-available" disabled>
                           No hay horarios disponibles
                         </SelectItem>
                       ) : null}

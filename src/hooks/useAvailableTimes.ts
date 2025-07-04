@@ -38,6 +38,8 @@ export const useAvailableTimes = (branch_id: number, reservation_date: Date | nu
         table.status === 'active' && table.places >= number_of_guests
       );
 
+      console.log('Suitable tables found:', suitableTables);
+
       if (suitableTables.length === 0) {
         console.log('No suitable tables found for guest count:', number_of_guests);
         return [];
@@ -45,6 +47,8 @@ export const useAvailableTimes = (branch_id: number, reservation_date: Date | nu
 
       // Generate time slots based on branch hours
       const timeSlots = generateTimeSlots(branch.opens_at, branch.closes_at, reservation_date);
+
+      console.log('Generated time slots:', timeSlots);
 
       // Get existing reservations for the date
       const { data: reservations, error } = await supabase
@@ -93,11 +97,14 @@ export const useAvailableTimes = (branch_id: number, reservation_date: Date | nu
 };
 
 function generateTimeSlots(opensAt: string | null, closesAt: string | null, reservationDate: Date): string[] {
+  console.log(opensAt, closesAt, reservationDate);
   if (!opensAt || !closesAt) return [];
 
   const slots: string[] = [];
   const now = new Date();
   const isToday = reservationDate.toDateString() === now.toDateString();
+
+  console.log(isToday)
 
   // Parse opening and closing times
   const [openHour, openMinute] = opensAt.split(':').map(Number);
