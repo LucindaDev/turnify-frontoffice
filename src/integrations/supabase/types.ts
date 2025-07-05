@@ -109,52 +109,11 @@ export type Database = {
           },
         ]
       }
-      reservation_events: {
-        Row: {
-          event_time: string | null
-          event_type: string | null
-          id: number
-          notes: string | null
-          recorded_by: string | null
-          reservation_id: number | null
-        }
-        Insert: {
-          event_time?: string | null
-          event_type?: string | null
-          id?: never
-          notes?: string | null
-          recorded_by?: string | null
-          reservation_id?: number | null
-        }
-        Update: {
-          event_time?: string | null
-          event_type?: string | null
-          id?: never
-          notes?: string | null
-          recorded_by?: string | null
-          reservation_id?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reservation_events_recorded_by_fkey"
-            columns: ["recorded_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reservation_events_reservation_id_fkey"
-            columns: ["reservation_id"]
-            isOneToOne: false
-            referencedRelation: "reservations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       reservations: {
         Row: {
           actual_duration_minutes: number | null
-          arrival_time: string | null
+          arrival_at: string | null
+          asked_for_bill_at: string | null
           branch_id: number
           cancellation_reason: string | null
           cancelled_by: string | null
@@ -168,10 +127,12 @@ export type Database = {
           no_show: boolean | null
           notes: string | null
           number_of_guests: number
+          ordered_at: string | null
           reservation_date: string
           reservation_time: string
           reservation_type: string
           seated_at: string | null
+          served_at: string | null
           status: string
           table_id: number | null
           user_id: string | null
@@ -179,7 +140,8 @@ export type Database = {
         }
         Insert: {
           actual_duration_minutes?: number | null
-          arrival_time?: string | null
+          arrival_at?: string | null
+          asked_for_bill_at?: string | null
           branch_id: number
           cancellation_reason?: string | null
           cancelled_by?: string | null
@@ -188,15 +150,17 @@ export type Database = {
           customer_phone?: string | null
           estimated_duration_minutes?: number | null
           finished_at?: string | null
-          id?: never
+          id?: number
           late_arrival?: boolean | null
           no_show?: boolean | null
           notes?: string | null
           number_of_guests: number
+          ordered_at?: string | null
           reservation_date: string
           reservation_time: string
           reservation_type: string
           seated_at?: string | null
+          served_at?: string | null
           status?: string
           table_id?: number | null
           user_id?: string | null
@@ -204,7 +168,8 @@ export type Database = {
         }
         Update: {
           actual_duration_minutes?: number | null
-          arrival_time?: string | null
+          arrival_at?: string | null
+          asked_for_bill_at?: string | null
           branch_id?: number
           cancellation_reason?: string | null
           cancelled_by?: string | null
@@ -213,15 +178,17 @@ export type Database = {
           customer_phone?: string | null
           estimated_duration_minutes?: number | null
           finished_at?: string | null
-          id?: never
+          id?: number
           late_arrival?: boolean | null
           no_show?: boolean | null
           notes?: string | null
           number_of_guests?: number
+          ordered_at?: string | null
           reservation_date?: string
           reservation_time?: string
           reservation_type?: string
           seated_at?: string | null
+          served_at?: string | null
           status?: string
           table_id?: number | null
           user_id?: string | null

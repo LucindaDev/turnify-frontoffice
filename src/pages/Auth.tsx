@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, User, Chrome } from "lucide-react";
+import { Mail, Lock, User, Chrome, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -63,10 +64,8 @@ const Auth = () => {
         
         if (error) throw error;
         
-        toast({
-          title: "¡Registro exitoso!",
-          description: "Revisa tu email para confirmar tu cuenta.",
-        });
+        // Show verification message instead of toast
+        setShowVerificationMessage(true);
       }
     } catch (error: any) {
       toast({
@@ -100,6 +99,70 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Email verification success view
+  if (showVerificationMessage) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md shadow-xl">
+          <CardHeader className="text-center space-y-2">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle className="w-10 h-10 text-white" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-gray-900">
+              ¡Registro Exitoso!
+            </CardTitle>
+            <CardDescription className="text-gray-600">
+              Tu cuenta ha sido creada correctamente
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="space-y-6 text-center">
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <Mail className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  Verifica tu correo electrónico
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Hemos enviado un enlace de verificación a:
+                </p>
+                <p className="font-medium text-blue-600 mt-1">
+                  {email}
+                </p>
+              </div>
+              
+              <div className="text-sm text-gray-600 space-y-2">
+                <p>
+                  1. Revisa tu bandeja de entrada (y carpeta de spam)
+                </p>
+                <p>
+                  2. Haz clic en el enlace de verificación
+                </p>
+                <p>
+                  3. Regresa aquí para iniciar sesión
+                </p>
+              </div>
+            </div>
+            
+            <Button 
+              onClick={() => {
+                setShowVerificationMessage(false);
+                setIsLogin(true);
+                setEmail('');
+                setPassword('');
+                setFirstName('');
+                setLastName('');
+              }}
+              className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+            >
+              Ya verifiqué mi cuenta - Iniciar Sesión
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
