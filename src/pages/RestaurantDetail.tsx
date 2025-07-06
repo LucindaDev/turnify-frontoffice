@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,13 +45,6 @@ const RestaurantDetail = () => {
     shouldFetchTimes ? selectedDate! : null,
     shouldFetchTimes ? parseInt(guestCount) : 0
   );
-
-  // Log the response from the hook for debugging
-  useEffect(() => {
-    if (availableTimes) {
-      console.log('Available times from hook:', availableTimes);
-    }
-  }, [availableTimes]);
 
   const handleReservation = async () => {
     if (!selectedDate || !selectedTime || !guestCount || !branch) {

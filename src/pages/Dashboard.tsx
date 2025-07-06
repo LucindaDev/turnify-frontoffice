@@ -18,8 +18,6 @@ const Dashboard = () => {
   const { data: reservations } = useReservations();
   const { data: branches, isLoading, error } = useBranches();
   const activeReservation = reservations?.find(reservation => reservation.status === 'scheduled') || null;
-  console.log(activeReservation)
-
 
   const categories = [
     { name: 'Italiana', icon: '🍝', color: 'bg-red-100' },

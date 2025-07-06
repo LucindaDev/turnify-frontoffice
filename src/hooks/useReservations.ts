@@ -8,7 +8,6 @@ export const useReservations = () => {
   return useQuery({
     queryKey: ['reservations'],
     queryFn: async () => {
-      console.log('Fetching user reservations...');
 
       const { data: { user } } = await supabase.auth.getUser();
 
@@ -35,7 +34,6 @@ export const useReservations = () => {
         throw error;
       }
 
-      console.log('Reservations fetched successfully:', data);
       return data as Reservation[];
     },
   });
@@ -46,8 +44,6 @@ export const useReservation = (id: string) => {
     queryKey: ['reservation', id],
     queryFn: async () => {
       if (!id) throw new Error('ID de reservación requerido');
-
-      console.log('Fetching reservation details for ID:', id);
 
       const { data, error } = await supabase
         .from('reservations')
@@ -69,7 +65,6 @@ export const useReservation = (id: string) => {
         throw error;
       }
 
-      console.log('Reservation fetched successfully:', data);
       return data as Reservation & {
         branches: {
           name: string;
@@ -91,7 +86,6 @@ export const useCreateReservation = () => {
 
   return useMutation({
     mutationFn: async (reservationData: CreateReservationData) => {
-      console.log('Creating reservation:', reservationData);
 
       const { data: { user } } = await supabase.auth.getUser();
 
@@ -116,7 +110,6 @@ export const useCreateReservation = () => {
         throw error;
       }
 
-      console.log('Reservation created successfully:', data);
       return data;
     },
     onSuccess: () => {
@@ -143,7 +136,6 @@ export const useUpdateReservation = () => {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: number; updates: Partial<Reservation> }) => {
-      console.log('Updating reservation:', id, updates);
 
       // Exclude 'id' from updates to avoid type error
       const { id: _id, ...updatesWithoutId } = updates as Partial<Reservation> & { id?: number };
@@ -159,7 +151,6 @@ export const useUpdateReservation = () => {
         throw error;
       }
 
-      console.log('Reservation updated successfully:', data);
       return data;
     },
     onSuccess: () => {
@@ -186,7 +177,6 @@ export const useCancelReservation = () => {
 
   return useMutation({
     mutationFn: async ({ id, reason }: { id: number; reason?: string }) => {
-      console.log('Cancelling reservation:', id, reason);
 
       const { data, error } = await supabase
         .from('reservations')
@@ -204,7 +194,6 @@ export const useCancelReservation = () => {
         throw error;
       }
 
-      console.log('Reservation cancelled successfully:', data);
       return data;
     },
     onSuccess: () => {
