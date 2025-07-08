@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useBranches } from '@/hooks/useBranches';
 import { useTables } from '@/hooks/useTables';
+import { Reservation } from '@/types/reservation';
+import { Database } from '@/integrations/supabase/types';
 
 interface AvailableTime {
   time: string;
@@ -26,10 +28,7 @@ export const useAvailableTimes = (branch_id: number, reservation_date: Date | nu
   return useQuery({
     queryKey: ['availableTimes', branch_id, reservation_date?.toISOString(), number_of_guests],
     queryFn: async () => {
-      console.log('Fetching available times for:', { branch_id, reservation_date, number_of_guests });
-
       if (!branch || !tables || !reservation_date) {
-        console.log('Branch, tables, or reservation_date not available yet');
         return [];
       }
 
@@ -38,17 +37,12 @@ export const useAvailableTimes = (branch_id: number, reservation_date: Date | nu
         table.status === 'active' && table.places >= number_of_guests
       );
 
-      console.log('Suitable tables found:', suitableTables);
-
       if (suitableTables.length === 0) {
-        console.log('No suitable tables found for guest count:', number_of_guests);
         return [];
       }
 
       // Generate time slots based on branch hours
       const timeSlots = generateTimeSlots(branch.opens_at, branch.closes_at, reservation_date);
-
-      console.log('Generated time slots:', timeSlots);
 
       // Get existing reservations for the date
       const { data: reservations, error } = await supabase
@@ -62,8 +56,6 @@ export const useAvailableTimes = (branch_id: number, reservation_date: Date | nu
         console.error('Error fetching reservations:', error);
         throw error;
       }
-
-      console.log('Found reservations:', reservations);
 
       // Calculate available times
       const availableTimes = timeSlots.map(timeSlot => {
@@ -79,7 +71,6 @@ export const useAvailableTimes = (branch_id: number, reservation_date: Date | nu
         };
       });
 
-      console.log('Available times calculated:', availableTimes);
       return availableTimes.filter(slot => slot.available).map(slot => slot.time);
     },
     // Solo ejecutar cuando tenemos todos los parámetros válidos
@@ -97,14 +88,11 @@ export const useAvailableTimes = (branch_id: number, reservation_date: Date | nu
 };
 
 function generateTimeSlots(opensAt: string | null, closesAt: string | null, reservationDate: Date): string[] {
-  console.log(opensAt, closesAt, reservationDate);
   if (!opensAt || !closesAt) return [];
 
   const slots: string[] = [];
   const now = new Date();
   const isToday = reservationDate.toDateString() === now.toDateString();
-
-  console.log(isToday)
 
   // Parse opening and closing times
   const [openHour, openMinute] = opensAt.split(':').map(Number);
@@ -141,7 +129,7 @@ function generateTimeSlots(opensAt: string | null, closesAt: string | null, rese
   return slots;
 }
 
-function getOccupiedTablesForTime(reservations: any[], timeSlot: string): number[] {
+function getOccupiedTablesForTime(reservations: Database["public"]["Tables"]["reservations"]["Row"][], timeSlot: string): number[] {
   const occupiedTables: number[] = [];
   const [slotHour, slotMinute] = timeSlot.split(':').map(Number);
   const slotTimeInMinutes = slotHour * 60 + slotMinute;

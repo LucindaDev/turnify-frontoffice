@@ -7,8 +7,6 @@ export const useBranches = (branch_id?:number) => {
   return useQuery({
     queryKey: ['branches'],
     queryFn: async () => {
-      console.log('Fetching branches from Supabase...');
-
       let query = supabase
         .from('branches')
         .select('*')
@@ -25,7 +23,6 @@ export const useBranches = (branch_id?:number) => {
         throw error;
       }
 
-      console.log('Branches fetched successfully:', data);
       return data as Branch[];
     },
   });

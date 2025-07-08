@@ -10,6 +10,7 @@ import { useBranches } from '@/hooks/useBranches';
 import { useReservations } from '@/hooks/useReservations';
 import { es } from 'date-fns/locale';
 import { format } from 'date-fns';
+import { Branch } from '@/types/branch';
 
 const Dashboard = () => {
 
@@ -17,8 +18,6 @@ const Dashboard = () => {
   const { data: reservations } = useReservations();
   const { data: branches, isLoading, error } = useBranches();
   const activeReservation = reservations?.find(reservation => reservation.status === 'scheduled') || null;
-  console.log(activeReservation)
-
 
   const categories = [
     { name: 'Italiana', icon: '🍝', color: 'bg-red-100' },
@@ -27,7 +26,7 @@ const Dashboard = () => {
     { name: 'Mariscos', icon: '🦐', color: 'bg-blue-100' },
   ];
 
-  const transformBranchToRestaurant = (branch: any) => {
+  const transformBranchToRestaurant = (branch: Branch) => {
     const occupancyRate = branch.total_tables > 0 ? (branch.active_tables / branch.total_tables) * 100 : 0;
 
     let availability = 'Disponible';

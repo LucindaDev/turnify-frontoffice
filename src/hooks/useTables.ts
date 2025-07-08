@@ -7,7 +7,6 @@ export const useTables = (branch_id: number) => {
   return useQuery({
     queryKey: ['tables'],
     queryFn: async () => {
-      console.log('Fetching tables from Supabase...');
 
       // Delay de 3 segundos
       //await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -23,7 +22,6 @@ export const useTables = (branch_id: number) => {
         throw error;
       }
       
-      console.log('Tables fetched successfully:', data);
       return data as Table[];
     },
   });
