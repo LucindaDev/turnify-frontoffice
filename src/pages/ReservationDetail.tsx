@@ -11,7 +11,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { useUpdateReservation, useCancelReservation, useReservation, type Reservation } from '@/hooks/useReservations';
+import { useUpdateReservation, useCancelReservation, useReservation } from '@/hooks/useReservations';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Calendar as CalendarIcon, Clock, MapPin, Users, Phone, User, FileText, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';

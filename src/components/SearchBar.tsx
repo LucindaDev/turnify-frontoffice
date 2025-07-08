@@ -4,6 +4,7 @@ import { Search, MapPin, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from "@/hooks/use-toast";
+import NotificationIcon from './NotificationIcon';
 import {
   Tooltip,
   TooltipContent,
@@ -196,6 +197,15 @@ const SearchBar = () => {
 
   return (
     <div className="bg-white p-4 shadow-sm">
+      {/* Header con título y notificaciones */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Turnify</h1>
+          <p className="text-sm text-gray-600">Encuentra y reserva tu mesa</p>
+        </div>
+        <NotificationIcon />
+      </div>
+      
       {renderLocationSection()}
       
       <div className="relative">
