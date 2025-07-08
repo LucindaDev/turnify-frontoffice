@@ -44,7 +44,7 @@ const SearchBar = () => {
 
     try {
       const permission = await navigator.permissions.query({ name: 'geolocation' });
-      
+
       if (permission.state === 'granted') {
         getCurrentLocation();
       } else if (permission.state === 'denied') {
@@ -61,15 +61,15 @@ const SearchBar = () => {
 
   const getCurrentLocation = () => {
     setLocationPermission('loading');
-    
+
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        
+
         try {
           // Simulated reverse geocoding - in a real app, you'd use a service like Google Maps API
           const address = await reverseGeocode(latitude, longitude);
-          
+
           setLocation({
             latitude,
             longitude,
@@ -88,7 +88,7 @@ const SearchBar = () => {
       (error) => {
         console.error('Error getting location:', error);
         setLocationPermission('denied');
-        
+
         if (error.code === error.PERMISSION_DENIED) {
           toast({
             variant: "destructive",
@@ -125,7 +125,7 @@ const SearchBar = () => {
       setLocationPermission('granted');
       setIsLocationDialogOpen(false);
       setManualAddress('');
-      
+
       toast({
         title: "Ubicación actualizada",
         description: "Tu ubicación ha sido configurada manualmente.",
@@ -147,7 +147,7 @@ const SearchBar = () => {
   const renderLocationSection = () => {
     if (locationPermission === 'loading') {
       return (
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3">
           <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
           <div>
             <p className="text-sm font-medium text-gray-900">Obteniendo ubicación...</p>
@@ -162,9 +162,9 @@ const SearchBar = () => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <button 
+              <button
                 onClick={handleLocationClick}
-                className="flex items-center gap-3 mb-3 w-full text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                className="flex items-center gap-3 w-full text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
               >
                 <AlertTriangle className="w-5 h-5 text-red-500" />
                 <div>
@@ -182,9 +182,9 @@ const SearchBar = () => {
     }
 
     return (
-      <button 
+      <button
         onClick={handleLocationClick}
-        className="flex items-center gap-3 mb-3 w-full text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
+        className="flex items-center gap-3 w-full text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
       >
         <MapPin className="w-5 h-5 text-gray-600" />
         <div>
@@ -197,17 +197,12 @@ const SearchBar = () => {
 
   return (
     <div className="bg-white p-4 shadow-sm">
-      {/* Header con título y notificaciones */}
+      {/* Header: ubicación a la izquierda, notificaciones a la derecha */}
       <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Turnify</h1>
-          <p className="text-sm text-gray-600">Encuentra y reserva tu mesa</p>
-        </div>
+        <div className="flex-1">{renderLocationSection()}</div>
         <NotificationIcon />
       </div>
-      
-      {renderLocationSection()}
-      
+
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
         <Input
@@ -233,24 +228,24 @@ const SearchBar = () => {
                 className="w-full"
               />
             </div>
-            
+
             <div className="flex gap-2">
-              <Button 
+              <Button
                 onClick={handleManualLocationSave}
                 className="flex-1"
                 disabled={!manualAddress.trim()}
               >
                 Guardar ubicación
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={getCurrentLocation}
                 className="flex-1"
               >
                 Intentar GPS
               </Button>
             </div>
-            
+
             <p className="text-xs text-gray-500 text-center">
               Necesitamos tu ubicación para mostrarte restaurantes cercanos y mejorar tu experiencia.
             </p>
