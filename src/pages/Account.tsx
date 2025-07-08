@@ -75,7 +75,7 @@ const Account = () => {
     );
   }
 
-  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
+  const userName = user?.user_metadata?.first_name + " " + user?.user_metadata?.last_name || user?.email?.split('@')[0] || 'Usuario';
   const userEmail = user?.email || 'email@ejemplo.com';
 
   return (
