@@ -3,7 +3,7 @@ export interface Notification {
   user_id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'reservation';
+  type: 'info' | 'success' | 'warning' | 'error' | 'reservation' | 'call-to-action' | 'promotional';
   data?: Record<string, any>;
   read: boolean;
   created_at: string;
