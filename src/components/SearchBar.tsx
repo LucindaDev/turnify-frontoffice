@@ -164,7 +164,7 @@ const SearchBar = () => {
             <TooltipTrigger asChild>
               <button
                 onClick={handleLocationClick}
-                className="flex items-center gap-3 w-full text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                className="flex items-center gap-3 w-80 text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
               >
                 <AlertTriangle className="w-5 h-5 text-red-500" />
                 <div>
@@ -184,7 +184,7 @@ const SearchBar = () => {
     return (
       <button
         onClick={handleLocationClick}
-        className="flex items-center gap-3 w-full text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
+        className="flex items-center gap-3 w-80 text-left hover:bg-gray-50 p-2 rounded-lg transition-colors"
       >
         <MapPin className="w-5 h-5 text-gray-600" />
         <div>

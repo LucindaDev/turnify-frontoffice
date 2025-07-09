@@ -105,3 +105,16 @@ export const createWelcomeNotification = async (userId: string, userName: string
     console.error('Error creating welcome notification:', error);
   }
 };
+
+// Función general para crear notificaciones
+export const createNotification = async (notification: NotificationCreateInput) => {
+  try {
+    const { error } = await supabase
+      .from('notifications')
+      .insert(notification);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error('Error creating notification:', error);
+  }
+}
