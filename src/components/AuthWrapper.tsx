@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from '@supabase/supabase-js';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { usePhoneValidationNotification } from '@/hooks/usePhoneValidationNotification';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+  const { checkAndManageNotification } = usePhoneValidationNotification();
 
   useEffect(() => {
     // Set up auth state listener
@@ -45,6 +47,13 @@ const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
 
     return () => subscription.unsubscribe();
   }, [navigate, location.pathname]);
+
+  // Manejar notificaciones de validación de teléfono
+  useEffect(() => {
+    if (session?.user) {
+      checkAndManageNotification();
+    }
+  }, [session?.user, checkAndManageNotification]);
 
   if (loading) {
     return (

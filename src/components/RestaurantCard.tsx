@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Clock, Star, Users } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { usePhoneValidationModal } from '@/components/PhoneValidationWrapper';
 
 interface RestaurantCardProps {
   id: string;
@@ -26,9 +28,51 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   availability
 }) => {
   const navigate = useNavigate();
+  const { openPhoneValidation } = usePhoneValidationModal();
+  const [isPhoneValidated, setIsPhoneValidated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkPhoneValidation = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('phone_validated')
+          .eq('id', user.id)
+          .single();
+
+        setIsPhoneValidated(profile?.phone_validated || false);
+      } catch (error) {
+        console.error('Error checking phone validation:', error);
+        setIsPhoneValidated(false);
+      }
+    };
+
+    checkPhoneValidation();
+
+    // Escuchar eventos de validación exitosa
+    const handlePhoneValidated = () => {
+      setIsPhoneValidated(true);
+    };
+
+    window.addEventListener('phoneValidated', handlePhoneValidated);
+
+    return () => {
+      window.removeEventListener('phoneValidated', handlePhoneValidated);
+    };
+  }, []);
 
   const handleClick = () => {
-    navigate(`/restaurant/${id}`);
+    if (isPhoneValidated === false) {
+      openPhoneValidation(
+        'Validación requerida',
+        'Para continuar con la reservación, primero debes configurar y validar tu número de teléfono celular. ¿Quieres hacerlo ahora mismo?'
+      );
+    } else {
+      navigate(`/restaurant/${id}`);
+    }
   };
 
   return (

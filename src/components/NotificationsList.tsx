@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { useNotifications } from '@/hooks/useNotifications';
+import { usePhoneValidationModal } from '@/components/PhoneValidationWrapper';
 import { 
   Bell, 
   CheckCheck, 
@@ -12,7 +13,8 @@ import {
   Info, 
   AlertTriangle, 
   CheckCircle, 
-  XCircle 
+  XCircle,
+  Phone 
 } from 'lucide-react';
 
 interface NotificationsListProps {
@@ -21,6 +23,7 @@ interface NotificationsListProps {
 
 const NotificationsList: React.FC<NotificationsListProps> = ({ onClose }) => {
   const { notifications, unreadCount, markAsRead, markAllAsRead, loading } = useNotifications();
+  const { openPhoneValidation } = usePhoneValidationModal();
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -32,8 +35,22 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ onClose }) => {
         return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
       case 'error':
         return <XCircle className="h-4 w-4 text-red-600" />;
+      case 'call-to-action':
+        return <Phone className="h-4 w-4 text-orange-600" />;
       default:
         return <Info className="h-4 w-4 text-blue-600" />;
+    }
+  };
+
+  const handleNotificationClick = (notification: any) => {
+    if (!notification.read) {
+      markAsRead(notification.id);
+    }
+
+    // Manejar acciones especiales para notificaciones call-to-action
+    if (notification.type === 'call-to-action' && notification.data?.action === 'validate_phone') {
+      openPhoneValidation();
+      onClose();
     }
   };
 
@@ -79,12 +96,8 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ onClose }) => {
                 key={notification.id}
                 className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
                   !notification.read ? 'bg-blue-50/50' : ''
-                }`}
-                onClick={() => {
-                  if (!notification.read) {
-                    markAsRead(notification.id);
-                  }
-                }}
+                } ${notification.type === 'call-to-action' ? 'border-l-4 border-orange-500' : ''}`}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex gap-3">
                   <div className="flex-shrink-0 mt-1">

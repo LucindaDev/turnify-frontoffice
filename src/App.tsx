@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthWrapper from "./components/AuthWrapper";
+import { PhoneValidationProvider } from "./components/PhoneValidationWrapper";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Reservations from "./pages/Reservations";
@@ -23,15 +24,17 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthWrapper>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/reservations" element={<Reservations />} />
-            <Route path="/reservation/:id" element={<ReservationDetail />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/restaurant/:id" element={<RestaurantDetail />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <PhoneValidationProvider>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/reservations" element={<Reservations />} />
+              <Route path="/reservation/:id" element={<ReservationDetail />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/restaurant/:id" element={<RestaurantDetail />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </PhoneValidationProvider>
         </AuthWrapper>
       </BrowserRouter>
     </TooltipProvider>
