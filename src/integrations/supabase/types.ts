@@ -330,6 +330,9 @@ export type Database = {
           id: string
           last_name: string | null
           phone_number: string | null
+          phone_validated: boolean | null
+          phone_validation_code: string | null
+          phone_validation_expires_at: string | null
           role: string
         }
         Insert: {
@@ -339,6 +342,9 @@ export type Database = {
           id: string
           last_name?: string | null
           phone_number?: string | null
+          phone_validated?: boolean | null
+          phone_validation_code?: string | null
+          phone_validation_expires_at?: string | null
           role?: string
         }
         Update: {
@@ -348,6 +354,9 @@ export type Database = {
           id?: string
           last_name?: string | null
           phone_number?: string | null
+          phone_validated?: boolean | null
+          phone_validation_code?: string | null
+          phone_validation_expires_at?: string | null
           role?: string
         }
         Relationships: []
