@@ -2,8 +2,6 @@ import React from 'react';
 import { es } from 'date-fns/locale';
 import { formatDistanceToNow } from 'date-fns';
 import {
-  Bell,
-  CheckCheck,
   Calendar,
   Info,
   AlertTriangle,

@@ -6,7 +6,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { usePhoneValidationModal } from '@/components/PhoneValidationWrapper';
 import {
   Bell,
-  CheckCheck
+  CheckCheck,
+  X
 } from 'lucide-react';
 
 // Hooks
@@ -21,9 +22,9 @@ interface NotificationsListProps {
 }
 
 const NotificationsList: React.FC<NotificationsListProps> = ({ onClose }) => {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, loading } = useNotifications();
+  const { notifications, unreadCount, allReaded, markAsRead, markAllAsRead, deleteNotifications, loading } = useNotifications();
 
-  console.log('NotificationsList.tsx',notifications);
+  console.log('NotificationsList.tsx', notifications);
   const { openPhoneValidation } = usePhoneValidationModal();
 
 
@@ -68,12 +69,23 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ onClose }) => {
               Marcar todas como leídas
             </Button>
           )}
+          {allReaded && !notifications.every(n => n.status === 'inactive') && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={deleteNotifications}
+              className="text-xs h-7 px-2"
+            >
+              <X className="h-3 w-3 mr-1" />
+              Eliminar notificaciones
+            </Button>
+          )}
         </div>
       </div>
 
       {/* Notifications List */}
       <ScrollArea className="h-96">
-        {notifications.length === 0 ? (
+        {notifications.length === 0 || !notifications.every(n => n.status === 'active') ? (
           <div className="p-8 text-center text-muted-foreground">
             <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p>No tienes notificaciones</p>
@@ -81,7 +93,7 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ onClose }) => {
         ) : (
           <div className="divide-y">
             {notifications.map((notification) => {
-              console.log('NotificationItem',notification);
+              if (notification.status === 'inactive') return null;
               return (
                 <NotificationsItem
                   key={notification.id}
