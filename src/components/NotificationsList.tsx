@@ -1,21 +1,20 @@
 import React from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+
+// UI
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { useNotifications } from '@/hooks/useNotifications';
 import { usePhoneValidationModal } from '@/components/PhoneValidationWrapper';
-import { 
-  Bell, 
-  CheckCheck, 
-  Calendar, 
-  Info, 
-  AlertTriangle, 
-  CheckCircle, 
-  XCircle,
-  Phone 
+import {
+  Bell,
+  CheckCheck
 } from 'lucide-react';
+
+// Hooks
+import { useNotifications } from '@/hooks/useNotifications';
+
+// Components
+import NotificationsItem from './NotificationItem';
+import checkPhoneValidation from '@/utils/phoneValidation';
 
 interface NotificationsListProps {
   onClose: () => void;
@@ -23,33 +22,23 @@ interface NotificationsListProps {
 
 const NotificationsList: React.FC<NotificationsListProps> = ({ onClose }) => {
   const { notifications, unreadCount, markAsRead, markAllAsRead, loading } = useNotifications();
+
+  console.log('NotificationsList.tsx',notifications);
   const { openPhoneValidation } = usePhoneValidationModal();
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'reservation':
-        return <Calendar className="h-4 w-4 text-blue-600" />;
-      case 'success':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'warning':
-        return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-      case 'error':
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      case 'call-to-action':
-        return <Phone className="h-4 w-4 text-orange-600" />;
-      default:
-        return <Info className="h-4 w-4 text-blue-600" />;
-    }
-  };
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = async (notification: any) => {
     if (!notification.read) {
       markAsRead(notification.id);
     }
 
     // Manejar acciones especiales para notificaciones call-to-action
     if (notification.type === 'call-to-action' && notification.data?.action === 'validate_phone') {
-      openPhoneValidation();
+      // Verificar si el teléfono ya está validado
+      const isPhoneValidated = await checkPhoneValidation();
+      if (!isPhoneValidated) {
+        openPhoneValidation();
+      }
       onClose();
     }
   };
@@ -91,42 +80,16 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ onClose }) => {
           </div>
         ) : (
           <div className="divide-y">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
-                  !notification.read ? 'bg-blue-50/50' : ''
-                } ${notification.type === 'call-to-action' ? 'border-l-4 border-orange-500' : ''}`}
-                onClick={() => handleNotificationClick(notification)}
-              >
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 mt-1">
-                    {getNotificationIcon(notification.type)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <h4 className={`text-sm font-medium ${
-                        !notification.read ? 'text-foreground' : 'text-muted-foreground'
-                      }`}>
-                        {notification.title}
-                      </h4>
-                      {!notification.read && (
-                        <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1"></div>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                      {notification.message}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {formatDistanceToNow(new Date(notification.created_at), {
-                        addSuffix: true,
-                        locale: es
-                      })}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
+            {notifications.map((notification) => {
+              console.log('NotificationItem',notification);
+              return (
+                <NotificationsItem
+                  key={notification.id}
+                  notification={notification}
+                  onClick={() => handleNotificationClick(notification)}
+                />
+              );
+            })}
           </div>
         )}
       </ScrollArea>

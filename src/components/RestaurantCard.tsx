@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Clock, Star, Users } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { usePhoneValidationModal } from '@/components/PhoneValidationWrapper';
+import checkPhoneValidation from '@/utils/phoneValidation';
 
 interface RestaurantCardProps {
   id: string;
@@ -32,25 +32,13 @@ const RestaurantCard: React.FC<RestaurantCardProps> = ({
   const [isPhoneValidated, setIsPhoneValidated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const checkPhoneValidation = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+    
+    const checkValidation = async () => {
+      const validated = await checkPhoneValidation();
+      setIsPhoneValidated(validated);
+    }
 
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('phone_validated')
-          .eq('id', user.id)
-          .single();
-
-        setIsPhoneValidated(profile?.phone_validated || false);
-      } catch (error) {
-        console.error('Error checking phone validation:', error);
-        setIsPhoneValidated(false);
-      }
-    };
-
-    checkPhoneValidation();
+    checkValidation();
 
     // Escuchar eventos de validación exitosa
     const handlePhoneValidated = () => {
