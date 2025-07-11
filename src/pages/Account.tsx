@@ -107,6 +107,7 @@ const Account = () => {
 
       {/* Estadísticas */}
       <div className="p-4">
+        {/*
         <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-4 mb-6">
           <Card className="text-center">
             <CardContent className="p-4">
@@ -129,6 +130,7 @@ const Account = () => {
             </CardContent>
           </Card>
         </div>
+        */}
 
         {/* Menú principal */}
         <Card>

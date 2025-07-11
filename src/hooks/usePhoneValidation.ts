@@ -10,8 +10,8 @@ export const usePhoneValidation = () => {
   const sendVerificationCode = async (phoneNumber: string) => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-sms-verification', {
-        body: { phone_number: phoneNumber }
+      const { error } = await supabase.functions.invoke('send-sms-verification', {
+        body: { phone_number: "+52" + phoneNumber }
       });
 
       if (error) throw error;
@@ -38,7 +38,7 @@ export const usePhoneValidation = () => {
   const verifyCode = async (code: string) => {
     setIsValidating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('verify-phone-code', {
+      const { error } = await supabase.functions.invoke('verify-phone-code', {
         body: { verification_code: code }
       });
 
