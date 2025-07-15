@@ -336,7 +336,8 @@ export type Database = {
           phone_validated: boolean | null
           phone_validation_code: string | null
           phone_validation_expires_at: string | null
-          role: string
+          role: string,
+          email: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -348,7 +349,8 @@ export type Database = {
           phone_validated?: boolean | null
           phone_validation_code?: string | null
           phone_validation_expires_at?: string | null
-          role?: string
+          role?: string,
+          email: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -360,7 +362,8 @@ export type Database = {
           phone_validated?: boolean | null
           phone_validation_code?: string | null
           phone_validation_expires_at?: string | null
-          role?: string
+          role?: string,
+          email: string | null
         }
         Relationships: []
       }

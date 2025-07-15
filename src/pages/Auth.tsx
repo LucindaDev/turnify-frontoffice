@@ -55,6 +55,23 @@ const Auth = () => {
           description: "Has iniciado sesión correctamente.",
         });
       } else {
+
+        //verify if email is already registered
+        const { data: isEmailRegistered, error: fetchError } = await supabase.rpc('is_email_registered', {
+          email_to_check: email
+        });
+
+        if (fetchError) throw fetchError;
+
+        if (isEmailRegistered) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Este correo electrónico ya está registrado."
+          });
+          return;
+        }
+
         const redirectUrl = `${window.location.origin}/`;
 
         const { error } = await supabase.auth.signUp({
@@ -65,12 +82,16 @@ const Auth = () => {
             data: {
               first_name: firstName,
               last_name: lastName,
+              email: email,
+              role: 'client' // Default role for new users
             },
           },
         });
 
         if (error) throw error;
-        
+
+        console.log(error);
+
         // Show verification message instead of toast
         setShowVerificationMessage(true);
       }
@@ -123,7 +144,7 @@ const Auth = () => {
               Tu cuenta ha sido creada correctamente
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-6 text-center">
             <div className="space-y-4">
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -138,7 +159,7 @@ const Auth = () => {
                   {email}
                 </p>
               </div>
-              
+
               <div className="text-sm text-gray-600 space-y-2">
                 <p>
                   1. Revisa tu bandeja de entrada (y carpeta de spam)
@@ -151,8 +172,8 @@ const Auth = () => {
                 </p>
               </div>
             </div>
-            
-            <Button 
+
+            <Button
               onClick={() => {
                 setShowVerificationMessage(false);
                 setIsLogin(true);
@@ -281,8 +302,8 @@ const Auth = () => {
               {loading
                 ? "Cargando..."
                 : isLogin
-                ? "Iniciar Sesión"
-                : "Crear Cuenta"}
+                  ? "Iniciar Sesión"
+                  : "Crear Cuenta"}
             </Button>
           </form>
 
