@@ -46,7 +46,7 @@ export const createReservationNotification = async (
   try {
     const { error } = await supabase
       .from('notifications')
-      .insert(notification);
+      .insert({ ...notification, status: 'active' });
 
     if (error) throw error;
   } catch (error) {
@@ -75,7 +75,7 @@ export const createPromotionalNotification = async (
   try {
     const { error } = await supabase
       .from('notifications')
-      .insert(notification);
+      .insert({ ...notification, status: 'active' });
 
     if (error) throw error;
   } catch (error) {
@@ -98,7 +98,7 @@ export const createWelcomeNotification = async (userId: string, userName: string
   try {
     const { error } = await supabase
       .from('notifications')
-      .insert(notification);
+      .insert({ ...notification, status: 'active' });
 
     if (error) throw error;
   } catch (error) {
@@ -111,7 +111,7 @@ export const createNotification = async (notification: NotificationCreateInput) 
   try {
     const { error } = await supabase
       .from('notifications')
-      .insert(notification);
+      .insert({ ...notification, status: 'active' });
 
     if (error) throw error;
   } catch (error) {
