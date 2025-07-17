@@ -13,6 +13,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Chrome, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { sendWelcomeNotification } from "@/utils/notificationHelpers";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -74,7 +75,7 @@ const Auth = () => {
 
         const redirectUrl = `${window.location.origin}/`;
 
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -90,10 +91,13 @@ const Auth = () => {
 
         if (error) throw error;
 
-        console.log(error);
+        console.log(data);
 
         // Show verification message instead of toast
         setShowVerificationMessage(true);
+
+        // Send welcome notification
+        await sendWelcomeNotification(data.user.id, data.user.user_metadata.first_name);
       }
     } catch (error) {
       toast({

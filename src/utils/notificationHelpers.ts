@@ -1,5 +1,10 @@
 import { supabase } from '@/integrations/supabase/client';
 import { NotificationCreateInput } from '@/types/notification';
+/**
+ * Helpers para la creación de notificaciones en Turnify.
+ * Estas funciones permiten crear notificaciones de diferentes tipos
+ * como reservaciones, promociones y bienvenida.
+ */
 
 // Función para crear notificaciones de reservaciones
 export const createReservationNotification = async (
@@ -72,19 +77,11 @@ export const createPromotionalNotification = async (
     }
   };
 
-  try {
-    const { error } = await supabase
-      .from('notifications')
-      .insert({ ...notification, status: 'active' });
-
-    if (error) throw error;
-  } catch (error) {
-    console.error('Error creating notification:', error);
-  }
+  createNotification(notification);
 };
 
 // Función para enviar notificación de bienvenida
-export const createWelcomeNotification = async (userId: string, userName: string) => {
+export const sendWelcomeNotification = async (userId: string, userName: string) => {
   const notification: NotificationCreateInput = {
     user_id: userId,
     title: `¡Bienvenido a Turnify, ${userName}! 🎉`,
@@ -95,15 +92,7 @@ export const createWelcomeNotification = async (userId: string, userName: string
     }
   };
 
-  try {
-    const { error } = await supabase
-      .from('notifications')
-      .insert({ ...notification, status: 'active' });
-
-    if (error) throw error;
-  } catch (error) {
-    console.error('Error creating welcome notification:', error);
-  }
+  createNotification(notification);
 };
 
 // Función general para crear notificaciones

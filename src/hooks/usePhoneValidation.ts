@@ -47,6 +47,7 @@ export const usePhoneValidation = () => {
       toast({
         title: "¡Teléfono validado!",
         description: "Tu número de teléfono ha sido validado exitosamente",
+        duration: 3000
       });
 
       // Disparar evento personalizado para notificar la validación exitosa
