@@ -1,16 +1,6 @@
-export interface Notification {
-  id: string;
-  user_id: string;
-  title: string;
-  message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'reservation' | 'call-to-action' | 'promotional';
-  data?: Record<string, any>;
-  read: boolean;
-  created_at: string;
-  updated_at: string;
-  status: 'active' | 'inactive';
-}
+import { Database } from "@/integrations/supabase/types";
 
+export type Notification = Database['public']['Tables']['notifications']['Row'];
 export interface NotificationCreateInput {
   user_id: string;
   title: string;

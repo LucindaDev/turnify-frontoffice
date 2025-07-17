@@ -1,38 +1,4 @@
-export interface Table {
-  id: number;
-  branch_id: number;
-  name: string;
-  places: number;
-  status: 'active' | 'inactive';
-}
+import { Database } from "@/integrations/supabase/types";
 
-export interface Branch {
-  id: number;
-  company_id: number;
-  menu_url: string;
-  name: string;
-  location: string;
-  opens_at: string;
-  closes_at: string;
-  total_tables: number;
-  active_tables: number;
-  status: string;
-  images: string[];
-}
-
-export interface BranchFormValues {
-  name: string;
-  location: string;
-  opens_at: string;
-  closes_at: string;
-  images: string[];
-  tables: {
-    name: string;
-    places: number;
-    status: 'active' | 'inactive';
-  }[];
-}
-
-export interface LoadedBranch extends Branch {
-  tables: Table[];
-}
+export type Table = Database['public']['Tables']['tables']['Row'];
+export type Branch = Database['public']['Tables']['branches']['Row'];
