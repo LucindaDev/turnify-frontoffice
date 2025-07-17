@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { usePhoneValidation } from '@/hooks/usePhoneValidation';
 import { Phone, MessageSquare } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface PhoneValidationModalProps {
   isOpen: boolean;
@@ -27,6 +28,14 @@ const PhoneValidationModal: React.FC<PhoneValidationModalProps> = ({
 
   const handleSendCode = async () => {
     if (!phoneNumber.trim()) return;
+    if (phoneNumber.length < 10) {
+      toast('Por favor, ingresa un número de teléfono válido.', { duration: 2000 });
+      return;
+    }
+    if ([...phoneNumber].some(char => isNaN(Number(char)))) {
+      toast('El número de teléfono solo debe contener dígitos.', { duration: 2000 });
+      return;
+    }
     
     const result = await sendVerificationCode(phoneNumber);
     if (result.success) {
@@ -77,7 +86,7 @@ const PhoneValidationModal: React.FC<PhoneValidationModalProps> = ({
                 <Input
                   id="phone"
                   type="tel"
-                  placeholder="+52 55 1234 5678"
+                  placeholder=""
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   disabled={isLoading}
